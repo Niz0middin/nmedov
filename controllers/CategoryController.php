@@ -122,14 +122,20 @@ class CategoryController extends Controller
         $json = file_get_contents(Yii::getAlias('@webroot/products.json'));
         $parent_categories = json_decode($json, true);
         foreach ($parent_categories as $parent_key => $categories) {
-            $new_parent_category = new Category();
-            $new_parent_category->name = $parent_key;
-            $new_parent_category->save();
+            $new_parent_category = Category::findOne(['name' => $parent_key]);
+            if (!$new_parent_category ) {
+                $new_parent_category = new Category();
+                $new_parent_category->name = $parent_key;
+                $new_parent_category->save();
+            }
             foreach ($categories as $key => $category) {
-                $new_category = new Category();
-                $new_category->parent_id = $new_parent_category->id;
-                $new_category->name = $key;
-                $new_category->save();
+                $new_category = Category::findOne(['name' => $key]);
+                if (!$new_category instanceof Category) {
+                    $new_category = new Category();
+                    $new_category->parent_id = $new_parent_category->id;
+                    $new_category->name = $key;
+                    $new_category->save();
+                }
             }
         }
     }

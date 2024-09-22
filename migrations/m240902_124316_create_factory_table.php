@@ -16,8 +16,8 @@ class m240902_124316_create_factory_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'status' => $this->tinyInteger()->defaultValue(1),
-            'created_at' => $this->string()->notNull(),
-            'updated_at' => $this->string()->notNull()
+            'created_at' => $this->timestamp()->notNull(),
+            'updated_at' => $this->timestamp()->notNull()
         ]);
     }
 

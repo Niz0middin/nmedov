@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "factory".
@@ -15,6 +16,18 @@ use Yii;
  */
 class Factory extends \yii\db\ActiveRecord
 {
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => date('Y-m-d H:i:s')
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -29,9 +42,10 @@ class Factory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'created_at', 'updated_at'], 'required'],
+            [['name'], 'required'],
             [['status'], 'integer'],
-            [['name', 'created_at', 'updated_at'], 'string', 'max' => 255],
+            [['created_at', 'updated_at'], 'safe'],
+            [['name'], 'string', 'max' => 255],
         ];
     }
 

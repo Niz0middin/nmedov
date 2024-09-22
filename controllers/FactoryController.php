@@ -122,17 +122,15 @@ class FactoryController extends Controller
             'Chococream',
             'Crafers',
             'Hot Lunch',
-            'Donna'
+            'Finland Butter'
         ];
 
         foreach ($factories as $factory) {
-            $f = new Factory();
-            $f->name = $factory;
-            if ($f->validate()) {
-                $f->save(false);
-            } else {
-                print_r($f->getErrors());
-                die;
+            $new_factory = Factory::findOne(['name' => $factory]);
+            if (!$new_factory instanceof Factory) {
+                $new_factory = new Factory();
+                $new_factory->name = $factory;
+                $new_factory->save();
             }
         }
     }
