@@ -15,10 +15,12 @@ class m240902_124344_create_product_table extends Migration
         $this->createTable('{{%product}}', [
             'id' => $this->primaryKey(),
             'category_id' => $this->integer(),
-            'name' => $this->string()->notNull(),
+            'name' => $this->string()->notNull()->unique(),
+            'unit' => "ENUM('кг', 'шт') NOT NULL",
+            'price' => $this->double()->defaultValue(0),
             'status' => $this->tinyInteger()->defaultValue(1),
-            'created_at' => $this->string()->notNull(),
-            'updated_at' => $this->string()->notNull()
+            'created_at' => $this->timestamp()->notNull(),
+            'updated_at' => $this->timestamp()->notNull()
         ]);
 
         $this->addForeignKey(

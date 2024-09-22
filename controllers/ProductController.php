@@ -2,11 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\Factory;
 use app\models\Product;
 use app\models\search\ProductSearch;
+use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
+use yii\web\Response;
 
 /**
  * ProductController implements the CRUD actions for Product model.
@@ -63,7 +66,7 @@ class ProductController extends Controller
     /**
      * Creates a new Product model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * @return string|Response
      */
     public function actionCreate()
     {
@@ -86,7 +89,7 @@ class ProductController extends Controller
      * Updates an existing Product model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionUpdate($id)
@@ -106,7 +109,7 @@ class ProductController extends Controller
      * Deletes an existing Product model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)
@@ -114,6 +117,38 @@ class ProductController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionSeed()
+    {
+        $json = file_get_contents(Yii::getAlias('@webroot/factory_products.json'));
+        $items = json_decode($json, true);
+        foreach ($items as $factory_name => $products) {
+            $factory = Factory::findOne(['name' => $factory_name]);
+            if ($factory instanceof Factory) {
+                foreach ($products as $product) {
+                    $name = trim(preg_replace('/\s+/', ' ', $product['name']));
+                    $unit = trim($product['unit']);
+                    $price = floatval(str_replace(' ','', $product['price'] ?? 0));
+                    $new_product = Product::findOne(['name' => $name, 'unit' => $unit]);
+                    if (!$new_product instanceof Product) {
+                        $new_product = new Product();
+                        $new_product->name = $name;
+                        $new_product->unit = $unit;
+                        $new_product->price = $price;
+                        $new_product->save();
+                        if ($new_product->getErrors()) {
+                            print_r($new_product->getErrors());
+                            die;
+                        }
+                    }
+                    $new_product->link('factories', $factory);
+                }
+            } else {
+                print_r("Factory $factory_name not found");
+                die;
+            }
+        }
     }
 
     /**

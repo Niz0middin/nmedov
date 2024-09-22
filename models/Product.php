@@ -11,11 +11,15 @@ use yii\behaviors\TimestampBehavior;
  * @property int $id
  * @property int|null $category_id
  * @property string $name
+ * @property float|null $price
+ * @property string $unit
  * @property int|null $status
- * @property int $created_at
- * @property int $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  *
  * @property Category $category
+ * @property Factory[] $factories
+ * @property FactoryProduct[] $factoryProducts
  */
 class Product extends \yii\db\ActiveRecord
 {
@@ -24,8 +28,8 @@ class Product extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'createdAtAttribute' => 'create_time',
-                'updatedAtAttribute' => 'update_time',
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
                 'value' => date('Y-m-d H:i:s')
             ],
         ];
@@ -45,9 +49,13 @@ class Product extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'status', 'created_at', 'updated_at'], 'integer'],
-            [['name', 'created_at', 'updated_at'], 'required'],
+            [['category_id', 'status'], 'integer'],
+            [['name', 'unit'], 'required'],
+            [['price'], 'number'],
+            [['unit'], 'string'],
+            [['created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 255],
+            [['name'], 'unique'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
@@ -61,6 +69,8 @@ class Product extends \yii\db\ActiveRecord
             'id' => 'ID',
             'category_id' => 'Category ID',
             'name' => 'Name',
+            'price' => 'Price',
+            'unit' => 'Unit',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -75,5 +85,25 @@ class Product extends \yii\db\ActiveRecord
     public function getCategory()
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
+    }
+
+    /**
+     * Gets query for [[Factories]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFactories()
+    {
+        return $this->hasMany(Factory::class, ['id' => 'factory_id'])->viaTable('factory_product', ['product_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[FactoryProducts]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFactoryProducts()
+    {
+        return $this->hasMany(FactoryProduct::class, ['product_id' => 'id']);
     }
 }
