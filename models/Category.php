@@ -11,8 +11,9 @@ use yii\behaviors\TimestampBehavior;
  * @property int $id
  * @property int|null $parent_id
  * @property string $name
- * @property int $created_at
- * @property int $updated_at
+ * @property int|null $status
+ * @property string $created_at
+ * @property string $updated_at
  *
  * @property Category[] $categories
  * @property Category $parent
@@ -25,8 +26,8 @@ class Category extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'createdAtAttribute' => 'create_time',
-                'updatedAtAttribute' => 'update_time',
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
                 'value' => date('Y-m-d H:i:s')
             ],
         ];
@@ -46,8 +47,9 @@ class Category extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['parent_id', 'created_at', 'updated_at'], 'integer'],
-            [['name', 'created_at', 'updated_at'], 'required'],
+            [['parent_id', 'status'], 'integer'],
+            [['name'], 'required'],
+            [['created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 255],
             [['parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['parent_id' => 'id']],
         ];
@@ -62,6 +64,7 @@ class Category extends \yii\db\ActiveRecord
             'id' => 'ID',
             'parent_id' => 'Parent ID',
             'name' => 'Name',
+            'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];

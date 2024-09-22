@@ -17,8 +17,8 @@ class m240902_124333_create_category_table extends Migration
             'parent_id' => $this->integer(),
             'name' => $this->string()->notNull(),
             'status' => $this->tinyInteger()->defaultValue(1),
-            'created_at' => $this->string()->notNull(),
-            'updated_at' => $this->string()->notNull()
+            'created_at' => $this->timestamp()->notNull(),
+            'updated_at' => $this->timestamp()->notNull()
         ]);
 
         $this->addForeignKey(

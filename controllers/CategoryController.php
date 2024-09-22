@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Category;
 use app\models\search\CategorySearch;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -22,7 +23,7 @@ class CategoryController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -114,6 +115,23 @@ class CategoryController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionSeed()
+    {
+        $json = file_get_contents(Yii::getAlias('@webroot/products.json'));
+        $parent_categories = json_decode($json, true);
+        foreach ($parent_categories as $parent_key => $categories) {
+            $new_parent_category = new Category();
+            $new_parent_category->name = $parent_key;
+            $new_parent_category->save();
+            foreach ($categories as $key => $category) {
+                $new_category = new Category();
+                $new_category->parent_id = $new_parent_category->id;
+                $new_category->name = $key;
+                $new_category->save();
+            }
+        }
     }
 
     /**
