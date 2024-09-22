@@ -1,5 +1,7 @@
 <?php
 
+use app\helpers\MainHelper;
+use app\models\Category;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -9,21 +11,29 @@ use yii\widgets\ActiveForm;
 ?>
 
 <div class="category-form">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <?php $form = ActiveForm::begin(); ?>
 
-    <?php $form = ActiveForm::begin(); ?>
+                    <?= $form->field($model, 'parent_id')->dropDownList(Category::parents()) ?>
 
-    <?= $form->field($model, 'parent_id')->textInput() ?>
+                    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'status')->dropDownList(MainHelper::STATES) ?>
 
-    <?= $form->field($model, 'created_at')->textInput() ?>
+                    <!--    --><?php //= $form->field($model, 'created_at')->textInput() ?>
+                    <!---->
+                    <!--    --><?php //= $form->field($model, 'updated_at')->textInput() ?>
 
-    <?= $form->field($model, 'updated_at')->textInput() ?>
+                    <div class="form-group">
+                        <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>
+                    </div>
 
-    <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+                    <?php ActiveForm::end(); ?>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <?php ActiveForm::end(); ?>
-
 </div>

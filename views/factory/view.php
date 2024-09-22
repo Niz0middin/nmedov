@@ -15,33 +15,38 @@ YiiAsset::register($this);
 $states = MainHelper::STATES
 ?>
 <div class="factory-view">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <p>
+                        <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+<!--                        --><?php //= Html::a('<i class="fa fa-trash"></i> Удалить', ['delete', 'id' => $model->id], [
+//                            'class' => 'btn btn-danger',
+//                            'data' => [
+//                                'confirm' => 'Are you sure you want to delete this item?',
+//                                'method' => 'post',
+//                            ],
+//                        ]) ?>
+                    </p>
 
-
-    <p>
-        <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-<!--        --><?php //= Html::a('Удалить', ['delete', 'id' => $model->id], [
-//            'class' => 'btn btn-danger',
-//            'data' => [
-//                'confirm' => 'Are you sure you want to delete this item?',
-//                'method' => 'post',
-//            ],
-//        ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'name',
-            [
-                'attribute' => 'status',
-                'value' => function ($model) use ($states) {
-                    return $states[$model->status] ?? $model->status;
-                }
-            ],
-            'created_at',
-            'updated_at',
-        ],
-    ]) ?>
-
+                    <?= DetailView::widget([
+                        'model' => $model,
+                        'attributes' => [
+                            'id',
+                            'name',
+                            [
+                                'attribute' => 'status',
+                                'value' => function ($model) use ($states) {
+                                    return $states[$model->status] ?? $model->status;
+                                }
+                            ],
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ]) ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
