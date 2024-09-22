@@ -28,6 +28,10 @@ use dmstr\adminlte\widgets\Alert;
 
                 <div class="col-sm-6">
                     <?= Breadcrumbs::widget([
+                        'homeLink' => [
+                            'label' => 'Главный',
+                            'url' => Yii::$app->homeUrl,
+                        ],
                         'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
                         'options' => [
                             'class' => 'float-sm-right'

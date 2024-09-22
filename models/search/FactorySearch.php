@@ -17,8 +17,8 @@ class FactorySearch extends Factory
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'status'], 'integer'],
+            [['name', 'created_at', 'updated_at'], 'safe'],
         ];
     }
 

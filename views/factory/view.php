@@ -1,29 +1,31 @@
 <?php
 
+use app\helpers\MainHelper;
 use yii\helpers\Html;
+use yii\web\YiiAsset;
 use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var app\models\Factory $model */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Factories', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
+YiiAsset::register($this);
+$states = MainHelper::STATES
 ?>
 <div class="factory-view">
 
-    
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
+        <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+<!--        --><?php //= Html::a('Удалить', ['delete', 'id' => $model->id], [
+//            'class' => 'btn btn-danger',
+//            'data' => [
+//                'confirm' => 'Are you sure you want to delete this item?',
+//                'method' => 'post',
+//            ],
+//        ]) ?>
     </p>
 
     <?= DetailView::widget([
@@ -31,7 +33,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
-            'status',
+            [
+                'attribute' => 'status',
+                'value' => function ($model) use ($states) {
+                    return $states[$model->status] ?? $model->status;
+                }
+            ],
             'created_at',
             'updated_at',
         ],
