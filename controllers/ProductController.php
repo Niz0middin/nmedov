@@ -135,14 +135,22 @@ class ProductController extends Controller
                         $new_product = new Product();
                         $new_product->name = $name;
                         $new_product->unit = $unit;
-                        $new_product->price = $price;
+                        if ($price > 0) {
+                            $new_product->price = $price;
+                        } else {
+                            $new_product->price = $new_product->unit == 'кг' ? 40000 : 10000;
+                        }
                         $new_product->save();
                         if ($new_product->getErrors()) {
                             print_r($new_product->getErrors());
                             die;
                         }
                     }
-                    $new_product->link('factories', $factory);
+                    try {
+                        $new_product->link('factories', $factory);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
                 }
             } else {
                 print_r("Factory $factory_name not found");

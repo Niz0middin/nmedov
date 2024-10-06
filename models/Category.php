@@ -105,4 +105,14 @@ class Category extends \yii\db\ActiveRecord
     {
         return ArrayHelper::map(self::find()->where(['parent_id' => null])->all(), 'id', 'name');
     }
+
+    public static function allCategories()
+    {
+        $res = [];
+        $children = self::find()->where(['not', ['parent_id' => null]])->all();
+        foreach ($children as $child) {
+            $res[$child->parent->name][$child->id] = $child->name;
+        }
+        return $res;
+    }
 }

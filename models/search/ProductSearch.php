@@ -18,7 +18,7 @@ class ProductSearch extends Product
     {
         return [
             [['id', 'category_id', 'status', 'created_at', 'updated_at'], 'integer'],
-            [['name'], 'safe'],
+            [['name', 'unit', 'price'], 'safe'],
         ];
     }
 
@@ -60,6 +60,8 @@ class ProductSearch extends Product
         $query->andFilterWhere([
             'id' => $this->id,
             'category_id' => $this->category_id,
+            'unit' => $this->unit,
+            'price' => $this->price,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
