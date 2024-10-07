@@ -125,6 +125,11 @@ class ProductController extends Controller
         $items = json_decode($json, true);
         foreach ($items as $factory_name => $products) {
             $factory = Factory::findOne(['name' => $factory_name]);
+            if (!$factory instanceof Factory) {
+                $factory = new Factory();
+                $factory->name = $factory_name;
+                $factory->save();
+            }
             if ($factory instanceof Factory) {
                 foreach ($products as $product) {
                     $name = trim(preg_replace('/\s+/', ' ', $product['name']));
