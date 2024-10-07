@@ -3,6 +3,7 @@
 use app\helpers\MainHelper;
 use app\models\Category;
 use app\models\Factory;
+use yii\bootstrap4\LinkPager;
 use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -19,7 +20,7 @@ $categories = Category::allCategories();
 ?>
 <div class="product-index">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" style="overflow-x:auto">
             <p>
                 <?= Html::a('<i class="fa fa-plus"></i> Добавить', ['create'], ['class' => 'btn btn-success']) ?>
             </p>
@@ -30,11 +31,16 @@ $categories = Category::allCategories();
                 'dataProvider' => $dataProvider,
                 'filterModel' => $searchModel,
                 'rowOptions' => function ($model, $key, $index, $grid) {
+                    $class = '';
+                    if ($model->status == 0) {
+                        $class = 'table-danger';
+                    }
                     return [
                         'id' => $model->id,
                         'ondblclick' => 'window.open("'
                             . Yii::$app->urlManager->createUrl('/product/view?id=') . '"+(this.id))',
-                        'onmouseover' => '$("table tr").css("cursor", "pointer");'
+                        'onmouseover' => '$("table tr").css("cursor", "pointer");',
+                        'class' => $class
                     ];
                 },
                 'tableOptions' => [
@@ -86,6 +92,9 @@ $categories = Category::allCategories();
                     'created_at',
                     //'updated_at',
                 ],
+                'pager' => [
+                    'class' => LinkPager::class
+                ]
             ]); ?>
         </div>
     </div>

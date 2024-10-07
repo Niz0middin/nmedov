@@ -1,6 +1,7 @@
 <?php
 
 use app\helpers\MainHelper;
+use yii\bootstrap4\LinkPager;
 use yii\grid\GridView;
 use yii\helpers\Html;
 
@@ -15,7 +16,7 @@ $states = MainHelper::STATES;
 ?>
 <div class="factory-index">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" style="overflow-x:auto">
             <p>
                 <?= Html::a('<i class="fa fa-plus"></i> Добавить', ['create'], ['class' => 'btn btn-success']) ?>
             </p>
@@ -26,11 +27,16 @@ $states = MainHelper::STATES;
                 'dataProvider' => $dataProvider,
                 'filterModel' => $searchModel,
                 'rowOptions' => function ($model, $key, $index, $grid) {
+                    $class = '';
+                    if ($model->status == 0) {
+                        $class = 'table-danger';
+                    }
                     return [
                         'id' => $model->id,
                         'ondblclick' => 'window.open("'
                             . Yii::$app->urlManager->createUrl('/factory/view?id=') . '"+(this.id))',
-                        'onmouseover' => '$("table tr").css("cursor", "pointer");'
+                        'onmouseover' => '$("table tr").css("cursor", "pointer");',
+                        'class' => $class
                     ];
                 },
                 'layout' => "{summary}\n{items}\n{pager}",
@@ -53,6 +59,9 @@ $states = MainHelper::STATES;
                     'created_at',
 //            'updated_at'
                 ],
+                'pager' => [
+                    'class' => LinkPager::class
+                ]
             ]); ?>
         </div>
     </div>

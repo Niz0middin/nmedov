@@ -2,6 +2,7 @@
 
 use app\helpers\MainHelper;
 use app\models\Category;
+use yii\bootstrap4\LinkPager;
 use yii\grid\GridView;
 use yii\helpers\Html;
 
@@ -17,7 +18,7 @@ $parents = Category::parents();
 ?>
 <div class="category-index">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" style="overflow-x:auto">
             <p>
                 <?= Html::a('<i class="fa fa-plus"></i> Добавить', ['create'], ['class' => 'btn btn-success']) ?>
             </p>
@@ -28,11 +29,16 @@ $parents = Category::parents();
                 'dataProvider' => $dataProvider,
                 'filterModel' => $searchModel,
                 'rowOptions' => function ($model, $key, $index, $grid) {
+                    $class = '';
+                    if ($model->status == 0) {
+                        $class = 'table-danger';
+                    }
                     return [
                         'id' => $model->id,
                         'ondblclick' => 'window.open("'
                             . Yii::$app->urlManager->createUrl('/category/view?id=') . '"+(this.id))',
-                        'onmouseover' => '$("table tr").css("cursor", "pointer");'
+                        'onmouseover' => '$("table tr").css("cursor", "pointer");',
+                        'class' => $class
                     ];
                 },
                 'tableOptions' => [
@@ -62,6 +68,9 @@ $parents = Category::parents();
                     'created_at',
                     //'updated_at'
                 ],
+                'pager' => [
+                    'class' => LinkPager::class
+                ]
             ]); ?>
         </div>
     </div>
