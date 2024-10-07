@@ -142,4 +142,8 @@ class Product extends ActiveRecord
         FactoryProduct::deleteAll(['product_id' => $this->id]);
         return true;
     }
+
+    public static function activeItems() {
+        return self::find()->where(['status' => 1])->all();
+    }
 }

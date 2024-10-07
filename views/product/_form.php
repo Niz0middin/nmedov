@@ -20,7 +20,7 @@ use yii\widgets\ActiveForm;
                     <?php $form = ActiveForm::begin(); ?>
 
                     <?= $form->field($model, 'factoryIds')->checkboxList(
-                        ArrayHelper::map(Factory::find()->all(), 'id', 'name')
+                        ArrayHelper::map(Factory::activeItems(), 'id', 'name')
                     ) ?>
 
                     <?= $form->field($model, 'category_id')->dropDownList(Category::allCategories(), ['prompt' => 'Выберите']) ?>

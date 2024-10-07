@@ -2,8 +2,9 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -20,7 +21,7 @@ use yii\helpers\ArrayHelper;
  * @property Category $parent
  * @property Product[] $products
  */
-class Category extends \yii\db\ActiveRecord
+class Category extends ActiveRecord
 {
     public function behaviors()
     {
@@ -74,7 +75,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Categories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCategories()
     {
@@ -84,7 +85,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Parent]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getParent()
     {
@@ -94,7 +95,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Products]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getProducts()
     {
@@ -103,15 +104,26 @@ class Category extends \yii\db\ActiveRecord
 
     public static function parents()
     {
-        return ArrayHelper::map(self::find()->where(['parent_id' => null])->all(), 'id', 'name');
+        return ArrayHelper::map(
+            self::find()
+                ->andWhere(['status' => 1])
+                ->andWhere(['parent_id' => null])
+                ->all(), 'id', 'name'
+        );
     }
 
     public static function allCategories()
     {
         $res = [];
-        $children = self::find()->where(['not', ['parent_id' => null]])->all();
+        $children = self::find()
+            ->where(['status' => 1])
+            ->andWhere(['not', ['parent_id' => null]])
+            ->all();
+        /** @var Category $child */
         foreach ($children as $child) {
-            $res[$child->parent->name][$child->id] = $child->name;
+            if ($child->status == 1 && $child->parent->status == 1) {
+                $res[$child->parent->name][$child->id] = $child->name;
+            }
         }
         return $res;
     }

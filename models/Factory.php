@@ -2,8 +2,9 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "factory".
@@ -17,7 +18,7 @@ use yii\behaviors\TimestampBehavior;
  * @property FactoryProduct[] $factoryProducts
  * @property Product[] $products
  */
-class Factory extends \yii\db\ActiveRecord
+class Factory extends ActiveRecord
 {
     public function behaviors()
     {
@@ -69,7 +70,7 @@ class Factory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[FactoryProducts]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFactoryProducts()
     {
@@ -79,10 +80,16 @@ class Factory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Products]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getProducts()
     {
-        return $this->hasMany(Product::class, ['id' => 'product_id'])->viaTable('factory_product', ['factory_id' => 'id']);
+        return $this->hasMany(Product::class, ['id' => 'product_id'])
+            ->viaTable('factory_product', ['factory_id' => 'id']);
+    }
+
+    public static function activeItems()
+    {
+        return self::find()->where(['status' => 1])->all();
     }
 }

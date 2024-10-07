@@ -39,6 +39,7 @@ class FactoryController extends Controller
     public function actionIndex()
     {
         $searchModel = new FactorySearch();
+        $searchModel->status = 1;
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
@@ -102,13 +103,6 @@ class FactoryController extends Controller
         ]);
     }
 
-    /**
-     * Deletes an existing Factory model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
 //    public function actionDelete($id)
 //    {
 //        $this->findModel($id)->delete();
