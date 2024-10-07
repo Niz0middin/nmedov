@@ -11,13 +11,14 @@ use app\models\Product;
  */
 class ProductSearch extends Product
 {
+    public $factory_id;
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['id', 'category_id', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'category_id', 'status', 'created_at', 'updated_at', 'factory_id'], 'integer'],
             [['name', 'unit', 'price'], 'safe'],
         ];
     }
@@ -44,6 +45,8 @@ class ProductSearch extends Product
 
         // add conditions that should always apply here
 
+        $query->joinWith('factories');
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -56,6 +59,10 @@ class ProductSearch extends Product
             return $dataProvider;
         }
 
+        if ($this->factory_id) {
+            $query->andFilterWhere(['factory_product.factory_id' => $this->factory_id]);
+        }
+
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
@@ -64,7 +71,7 @@ class ProductSearch extends Product
             'price' => $this->price,
             'status' => $this->status,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->updated_at
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);

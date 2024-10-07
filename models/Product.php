@@ -2,8 +2,10 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "product".
@@ -21,8 +23,10 @@ use yii\behaviors\TimestampBehavior;
  * @property Factory[] $factories
  * @property FactoryProduct[] $factoryProducts
  */
-class Product extends \yii\db\ActiveRecord
+class Product extends ActiveRecord
 {
+    public $factoryIds;
+
     public function behaviors()
     {
         return [
@@ -53,7 +57,7 @@ class Product extends \yii\db\ActiveRecord
             [['name', 'unit'], 'required'],
             [['price'], 'number'],
             [['unit'], 'string'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created_at', 'updated_at', 'factoryIds'], 'safe'],
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
@@ -68,6 +72,7 @@ class Product extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'category_id' => 'Категория',
+            'factory_id' => 'Завод',
             'price' => 'Цена',
             'unit' => 'Ед. изм.',
             'parent_id' => 'Родитель',
@@ -75,13 +80,14 @@ class Product extends \yii\db\ActiveRecord
             'status' => 'Статус',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
+            'factoryIds' => 'Заводы',
         ];
     }
 
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCategory()
     {
@@ -91,7 +97,7 @@ class Product extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Factories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFactories()
     {
@@ -101,10 +107,39 @@ class Product extends \yii\db\ActiveRecord
     /**
      * Gets query for [[FactoryProducts]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFactoryProducts()
     {
         return $this->hasMany(FactoryProduct::class, ['product_id' => 'id']);
+    }
+
+    public function afterFind()
+    {
+        parent::afterFind();
+        $this->factoryIds = ArrayHelper::getColumn($this->factories, 'id');
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        FactoryProduct::deleteAll(['product_id' => $this->id]);
+        if (is_array($this->factoryIds) && !empty($this->factoryIds)) {
+            foreach ($this->factoryIds as $factoryId) {
+                $factoryProduct = new FactoryProduct();
+                $factoryProduct->product_id = $this->id;
+                $factoryProduct->factory_id = $factoryId;
+                $factoryProduct->save();
+            }
+        }
+    }
+
+    public function beforeDelete()
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+        FactoryProduct::deleteAll(['product_id' => $this->id]);
+        return true;
     }
 }

@@ -2,6 +2,8 @@
 
 use app\helpers\MainHelper;
 use app\models\Category;
+use app\models\Factory;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -16,6 +18,10 @@ use yii\widgets\ActiveForm;
             <div class="card">
                 <div class="card-body">
                     <?php $form = ActiveForm::begin(); ?>
+
+                    <?= $form->field($model, 'factoryIds')->checkboxList(
+                        ArrayHelper::map(Factory::find()->all(), 'id', 'name')
+                    ) ?>
 
                     <?= $form->field($model, 'category_id')->dropDownList(Category::allCategories(), ['prompt' => 'Выберите']) ?>
 

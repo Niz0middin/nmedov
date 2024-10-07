@@ -2,7 +2,9 @@
 
 use app\helpers\MainHelper;
 use app\models\Category;
+use app\models\Factory;
 use yii\grid\GridView;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
@@ -42,6 +44,14 @@ $categories = Category::allCategories();
                     ['class' => 'yii\grid\SerialColumn'],
 
 //                    'id',
+                    [
+                        'attribute' => 'factory_id',
+                        'value' => function ($model) {
+                            return $model->factories ? implode(', ', ArrayHelper::getColumn($model->factories, 'name')) : 'No factory';
+                        },
+                        'filter' => ArrayHelper::map(Factory::find()->all(), 'id', 'name'),
+                        'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите']
+                    ],
                     'name',
                     [
                         'attribute' => 'price',
@@ -49,7 +59,14 @@ $categories = Category::allCategories();
                             return MainHelper::priceFormat($model->price);
                         },
                     ],
-                    'unit',
+                    [
+                        'attribute' => 'unit',
+                        'filter' => MainHelper::UNITS,
+                        'value' => function ($model) {
+                            return $model->unit;
+                        },
+                        'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите'],
+                    ],
                     [
                         'attribute' => 'category_id',
                         'filter' => $categories,
