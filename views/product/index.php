@@ -66,6 +66,12 @@ $categories = Category::allCategories();
                         },
                     ],
                     [
+                        'attribute' => 'cost_price',
+                        'value' => function ($model) {
+                            return MainHelper::priceFormat($model->cost_price);
+                        },
+                    ],
+                    [
                         'attribute' => 'unit',
                         'filter' => MainHelper::UNITS,
                         'value' => function ($model) {

@@ -18,6 +18,7 @@ class m240902_124344_create_product_table extends Migration
             'name' => $this->string()->notNull()->unique(),
             'unit' => "ENUM('кг', 'шт') NOT NULL",
             'price' => $this->double()->defaultValue(0),
+            'cost_price' => $this->double()->defaultValue(0),
             'status' => $this->tinyInteger()->defaultValue(1),
             'created_at' => $this->timestamp()->notNull(),
             'updated_at' => $this->timestamp()->notNull()

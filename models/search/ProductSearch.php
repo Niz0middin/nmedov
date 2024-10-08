@@ -19,7 +19,7 @@ class ProductSearch extends Product
     {
         return [
             [['id', 'category_id', 'status', 'created_at', 'updated_at', 'factory_id'], 'integer'],
-            [['name', 'unit', 'price'], 'safe'],
+            [['name', 'unit', 'price', 'cost_price'], 'safe'],
         ];
     }
 
@@ -69,6 +69,7 @@ class ProductSearch extends Product
             'product.category_id' => $this->category_id,
             'product.unit' => $this->unit,
             'product.price' => $this->price,
+            'product.cost_price' => $this->cost_price,
             'product.status' => $this->status,
             'product.created_at' => $this->created_at,
             'product.updated_at' => $this->updated_at

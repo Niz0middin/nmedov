@@ -44,6 +44,12 @@ $states = MainHelper::STATES
                                     return MainHelper::priceFormat($model->price);
                                 },
                             ],
+                            [
+                                'attribute' => 'cost_price',
+                                'value' => function ($model) {
+                                    return MainHelper::priceFormat($model->cost_price);
+                                },
+                            ],
                             'unit',
                             [
                                 'attribute' => 'status',

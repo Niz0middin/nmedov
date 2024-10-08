@@ -14,6 +14,7 @@ use yii\helpers\ArrayHelper;
  * @property int|null $category_id
  * @property string $name
  * @property float|null $price
+ * @property float|null $cost_price
  * @property string $unit
  * @property int|null $status
  * @property string $created_at
@@ -55,7 +56,7 @@ class Product extends ActiveRecord
         return [
             [['category_id', 'status'], 'integer'],
             [['name', 'unit'], 'required'],
-            [['price'], 'number'],
+            [['price', 'cost_price'], 'number'],
             [['unit'], 'string'],
             [['created_at', 'updated_at', 'factoryIds'], 'safe'],
             [['name'], 'string', 'max' => 255],
@@ -74,6 +75,7 @@ class Product extends ActiveRecord
             'category_id' => 'Категория',
             'factory_id' => 'Завод',
             'price' => 'Цена',
+            'cost_price' => 'Себестоимость',
             'unit' => 'Ед. изм.',
             'parent_id' => 'Родитель',
             'name' => 'Наименование',

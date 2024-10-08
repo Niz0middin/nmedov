@@ -29,6 +29,8 @@ use yii\widgets\ActiveForm;
 
                     <?= $form->field($model, 'price')->textInput(['type' => 'number', 'step' => 0.01]) ?>
 
+                    <?= $form->field($model, 'cost_price')->textInput(['type' => 'number', 'step' => 0.01]) ?>
+
                     <?= $form->field($model, 'unit')->dropDownList(MainHelper::UNITS) ?>
 
                     <?= $form->field($model, 'status')->dropDownList(MainHelper::STATES) ?>
