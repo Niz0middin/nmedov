@@ -15,7 +15,7 @@ class m241008_194309_create_report_table extends Migration
         $this->createTable('{{%report}}', [
             'id' => $this->primaryKey(),
             'factory_id' => $this->integer()->notNull(),
-            'date' => $this->integer()->notNull(),
+            'date' => $this->string()->notNull(),
             'status' => $this->tinyInteger()->defaultValue(0),
             'created_at' => $this->timestamp()->notNull(),
             'updated_at' => $this->timestamp()->notNull()

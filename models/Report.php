@@ -21,6 +21,8 @@ use yii\behaviors\TimestampBehavior;
  */
 class Report extends \yii\db\ActiveRecord
 {
+    public $reportProductsData;
+
     public function behaviors()
     {
         return [
@@ -48,10 +50,11 @@ class Report extends \yii\db\ActiveRecord
     {
         return [
             [['factory_id', 'date'], 'required'],
-            [['factory_id', 'date', 'status'], 'integer'],
+            [['factory_id', 'status'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['date', 'factory_id'], 'unique', 'targetAttribute' => ['date', 'factory_id']],
             [['factory_id'], 'exist', 'skipOnError' => true, 'targetClass' => Factory::class, 'targetAttribute' => ['factory_id' => 'id']],
+            [['reportProductsData'], 'safe'],
         ];
     }
 

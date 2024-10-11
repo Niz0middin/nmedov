@@ -88,6 +88,11 @@ class Factory extends ActiveRecord
             ->viaTable('factory_product', ['factory_id' => 'id']);
     }
 
+    public function getReports()
+    {
+        return $this->hasMany(Report::class, ['factory_id' => 'id']);
+    }
+
     public static function activeItems()
     {
         return self::find()->where(['status' => 1])->all();

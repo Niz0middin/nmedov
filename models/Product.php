@@ -116,6 +116,11 @@ class Product extends ActiveRecord
         return $this->hasMany(FactoryProduct::class, ['product_id' => 'id']);
     }
 
+    public function getReportProducts()
+    {
+        return $this->hasMany(ReportProduct::class, ['product_id' => 'id']);
+    }
+
     public function afterFind()
     {
         parent::afterFind();

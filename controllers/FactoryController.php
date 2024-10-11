@@ -3,7 +3,10 @@
 namespace app\controllers;
 
 use app\models\Factory;
+use app\models\Report;
+use app\models\ReportProduct;
 use app\models\search\FactorySearch;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -22,7 +25,7 @@ class FactoryController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -56,10 +59,17 @@ class FactoryController extends Controller
      */
     public function actionView($id)
     {
+        $factory = $this->findModel($id);
+
+        // Load the reports related to this factory
+        $reports = $factory->getReports()->with('reportProducts.product')->all();
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'factory' => $factory,
+            'reports' => $reports,
         ]);
     }
+
 
     /**
      * Creates a new Factory model.
@@ -143,5 +153,159 @@ class FactoryController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionViewReport($id)
+    {
+        $report = $this->findReportModel($id);
+
+        // Load the reports related to this factory
+        $reportProducts = $report->reportProducts;
+        return $this->render('view-report', [
+            'report' => $report,
+            'reportProducts' => $reportProducts,
+        ]);
+    }
+
+    /**
+     * Creates a new Report for a specific Factory.
+     * @param integer $id Factory ID
+     * @return mixed
+     */
+    public function actionCreateReport($id)
+    {
+        $factory = $this->findModel($id);
+        $report = new Report();
+        $report->factory_id = $factory->id;
+        $report->date = date('Y-m-d'); // Default to today
+
+        // Get products related to this factory
+        $products = $factory->products;
+
+        if ($report->load(Yii::$app->request->post())) {
+            $reportProductsData = Yii::$app->request->post('ReportProduct', []);
+            $valid = $report->validate();
+
+            $reportProducts = [];
+            foreach ($products as $product) {
+                $rp = new ReportProduct();
+                $rp->product_id = $product->id;
+                $rp->amount = isset($reportProductsData[$product->id]['amount']) ? $reportProductsData[$product->id]['amount'] : 0;
+                $reportProducts[] = $rp;
+//                $valid = $rp->validate() && $valid;
+            }
+
+            if ($valid) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    if ($report->save(false)) {
+                        foreach ($reportProducts as $rp) {
+                            $rp->report_id = $report->id;
+                            $rp->save(false);
+                        }
+                        $transaction->commit();
+                        return $this->redirect(['view-report', 'id' => $report->id]);
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::error("Error creating report: " . $e->getMessage());
+                }
+            }
+        }
+
+        return $this->render('create-report', [
+            'factory' => $factory,
+            'report' => $report,
+            'products' => $products,
+        ]);
+    }
+
+    /**
+     * Updates an existing Report.
+     * @param integer $id Report ID
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateReport($id)
+    {
+        $report = $this->findReportModel($id);
+        $factory = $report->factory;
+        $products = $factory->products;
+
+        // Load existing report products
+        $reportProducts = ReportProduct::find()->where(['report_id' => $report->id])->indexBy('product_id')->all();
+
+        if ($report->load(Yii::$app->request->post())) {
+            $reportProductsData = Yii::$app->request->post('ReportProduct', []);
+            $valid = $report->validate();
+
+            foreach ($products as $product) {
+                if (isset($reportProducts[$product->id])) {
+                    $rp = $reportProducts[$product->id];
+                } else {
+                    $rp = new ReportProduct();
+                    $rp->report_id = $report->id;
+                    $rp->product_id = $product->id;
+                }
+                $rp->amount = isset($reportProductsData[$product->id]['amount']) ? $reportProductsData[$product->id]['amount'] : 0;
+                $valid = $rp->validate() && $valid;
+                $reportProducts[$product->id] = $rp;
+            }
+
+            if ($valid) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    if ($report->save(false)) {
+                        foreach ($reportProducts as $rp) {
+                            $rp->save(false);
+                        }
+                        $transaction->commit();
+                        return $this->redirect(['view-report', 'id' => $report->id]);
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::error("Error updating report: " . $e->getMessage());
+                }
+            }
+        }
+
+        return $this->render('update-report', [
+            'factory' => $factory,
+            'report' => $report,
+            'products' => $products,
+            'reportProducts' => $reportProducts,
+        ]);
+    }
+
+    public function actionDeleteReport($id)
+    {
+        $report = $this->findReportModel($id);
+        $factoryId = $report->factory_id;
+
+        // Delete report and its related report products
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $report->delete();
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $this->redirect(['view', 'id' => $factoryId]);
+    }
+
+    /**
+     * Finds the Report model based on its primary key value.
+     * @param integer $id
+     * @return Report
+     * @throws NotFoundHttpException
+     */
+    protected function findReportModel($id)
+    {
+        if (($model = Report::findOne($id)) !== null) {
+            return $model;
+        }
+        throw new NotFoundHttpException('The requested report does not exist.');
     }
 }
