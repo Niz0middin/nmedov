@@ -4,12 +4,12 @@ namespace app\models\search;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Factory;
+use app\models\Report;
 
 /**
- * FactorySearch represents the model behind the search form of `app\models\Factory`.
+ * ReportSearch represents the model behind the search form of `app\models\Report`.
  */
-class FactorySearch extends Factory
+class ReportSearch extends Report
 {
     /**
      * {@inheritdoc}
@@ -17,8 +17,8 @@ class FactorySearch extends Factory
     public function rules()
     {
         return [
-            [['id', 'status'], 'integer'],
-            [['name', 'created_at', 'updated_at'], 'safe'],
+            [['id', 'factory_id', 'status'], 'integer'],
+            [['created_at', 'updated_at', 'date'], 'safe'],
         ];
     }
 
@@ -40,7 +40,7 @@ class FactorySearch extends Factory
      */
     public function search($params)
     {
-        $query = Factory::find();
+        $query = Report::find();
 
         // add conditions that should always apply here
 
@@ -59,10 +59,10 @@ class FactorySearch extends Factory
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'factory_id' => $this->factory_id,
+            'date' => $this->date,
             'status' => $this->status
         ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name]);
 
         if ($this->created_at) {
             $query->andFilterWhere(['between', 'created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);

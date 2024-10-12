@@ -6,6 +6,7 @@ use app\models\Factory;
 use app\models\Report;
 use app\models\ReportProduct;
 use app\models\search\FactorySearch;
+use app\models\search\ReportSearch;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -28,6 +29,8 @@ class FactoryController extends Controller
                     'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
+                        'delete-report' => ['POST'],
+                        'confirm-report' => ['POST'],
                     ],
                 ],
             ]
@@ -60,6 +63,9 @@ class FactoryController extends Controller
     public function actionView($id)
     {
         $factory = $this->findModel($id);
+        $reportSearchModel = new ReportSearch();
+        $reportSearchModel->factory_id = $factory->id;
+        $reportDataProvider = $reportSearchModel->search($this->request->queryParams);
 
         // Load the reports related to this factory
         $reports = $factory->getReports()->with('reportProducts.product')->all();
@@ -67,6 +73,8 @@ class FactoryController extends Controller
         return $this->render('view', [
             'factory' => $factory,
             'reports' => $reports,
+            'reportSearchModel' => $reportSearchModel,
+            'reportDataProvider' => $reportDataProvider,
         ]);
     }
 
@@ -183,14 +191,14 @@ class FactoryController extends Controller
         $products = $factory->products;
 
         if ($report->load(Yii::$app->request->post())) {
-            $reportProductsData = Yii::$app->request->post('ReportProduct', []);
+            $reportProductsData = $report->reportProductsData;
             $valid = $report->validate();
 
             $reportProducts = [];
             foreach ($products as $product) {
                 $rp = new ReportProduct();
                 $rp->product_id = $product->id;
-                $rp->amount = isset($reportProductsData[$product->id]['amount']) ? $reportProductsData[$product->id]['amount'] : 0;
+                $rp->amount = $reportProductsData[$product->id]['amount'] ?? 0;
                 $reportProducts[] = $rp;
 //                $valid = $rp->validate() && $valid;
             }
@@ -216,7 +224,7 @@ class FactoryController extends Controller
         return $this->render('create-report', [
             'factory' => $factory,
             'report' => $report,
-            'products' => $products,
+            'products' => $products
         ]);
     }
 
@@ -236,7 +244,7 @@ class FactoryController extends Controller
         $reportProducts = ReportProduct::find()->where(['report_id' => $report->id])->indexBy('product_id')->all();
 
         if ($report->load(Yii::$app->request->post())) {
-            $reportProductsData = Yii::$app->request->post('ReportProduct', []);
+            $reportProductsData = $report->reportProductsData;
             $valid = $report->validate();
 
             foreach ($products as $product) {
@@ -247,7 +255,7 @@ class FactoryController extends Controller
                     $rp->report_id = $report->id;
                     $rp->product_id = $product->id;
                 }
-                $rp->amount = isset($reportProductsData[$product->id]['amount']) ? $reportProductsData[$product->id]['amount'] : 0;
+                $rp->amount = $reportProductsData[$product->id]['amount'] ?? 0;
                 $valid = $rp->validate() && $valid;
                 $reportProducts[$product->id] = $rp;
             }
@@ -292,7 +300,16 @@ class FactoryController extends Controller
             throw $e;
         }
 
-        return $this->redirect(['view', 'id' => $factoryId]);
+        return $this->redirect(['view-report', 'id' => $report->id]);
+    }
+
+    public function actionConfirmReport($id)
+    {
+        $report = $this->findReportModel($id);
+        $report->status = 1;
+        $report->save();
+
+        return $this->redirect(['view-report', 'id' => $report->id]);
     }
 
     /**

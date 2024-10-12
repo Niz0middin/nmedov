@@ -2,9 +2,11 @@
 
 use app\helpers\MainHelper;
 use app\models\Category;
+use kartik\widgets\DatePicker;
 use yii\bootstrap4\LinkPager;
 use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var app\models\search\CategorySearch $searchModel */
@@ -35,9 +37,8 @@ $parents = Category::parents();
                     }
                     return [
                         'id' => $model->id,
-                        'ondblclick' => 'window.open("'
-                            . Yii::$app->urlManager->createUrl('/category/view?id=') . '"+(this.id))',
-                        'onmouseover' => '$("table tr").css("cursor", "pointer");',
+                        'onclick' => 'window.location.href = "' . Url::to(['view', 'id' => $model->id]) . '"',
+                        'style' => 'cursor: pointer;',
                         'class' => $class
                     ];
                 },
@@ -65,7 +66,21 @@ $parents = Category::parents();
                         },
                         'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите'],
                     ],
-                    'created_at',
+                    [
+                        'attribute' => 'created_at',
+                        'value' => 'created_at',
+                        'filter' => DatePicker::widget([
+                            'model' => $searchModel,
+                            'attribute' => 'created_at',
+                            'removeButton' => false,
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-mm-dd',
+                                'todayHighlight' => true
+                            ],
+                            'options' => ['placeholder' => 'Введите дату ...'],
+                        ])
+                    ],
                     //'updated_at'
                 ],
                 'pager' => [

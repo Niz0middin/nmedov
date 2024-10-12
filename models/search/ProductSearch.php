@@ -18,8 +18,8 @@ class ProductSearch extends Product
     public function rules()
     {
         return [
-            [['id', 'category_id', 'status', 'created_at', 'updated_at', 'factory_id'], 'integer'],
-            [['name', 'unit', 'price', 'cost_price'], 'safe'],
+            [['id', 'category_id', 'status', 'factory_id'], 'integer'],
+            [['name', 'unit', 'price', 'cost_price', 'created_at', 'updated_at'], 'safe'],
         ];
     }
 
@@ -70,12 +70,18 @@ class ProductSearch extends Product
             'product.unit' => $this->unit,
             'product.price' => $this->price,
             'product.cost_price' => $this->cost_price,
-            'product.status' => $this->status,
-            'product.created_at' => $this->created_at,
-            'product.updated_at' => $this->updated_at
+            'product.status' => $this->status
         ]);
 
         $query->andFilterWhere(['like', 'product.name', $this->name]);
+
+        if ($this->created_at) {
+            $query->andFilterWhere(['between', 'product.created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);
+        }
+
+        if ($this->updated_at) {
+            $query->andFilterWhere(['between', 'product.updated_at', $this->updated_at . ' 00:00:00', $this->updated_at . ' 23:59:59']);
+        }
 
         return $dataProvider;
     }

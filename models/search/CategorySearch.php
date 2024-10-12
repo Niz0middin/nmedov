@@ -60,12 +60,18 @@ class CategorySearch extends Category
         $query->andFilterWhere([
             'id' => $this->id,
             'parent_id' => $this->parent_id,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'status' => $this->status
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);
+
+        if ($this->created_at) {
+            $query->andFilterWhere(['between', 'created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);
+        }
+
+        if ($this->updated_at) {
+            $query->andFilterWhere(['between', 'updated_at', $this->updated_at . ' 00:00:00', $this->updated_at . ' 23:59:59']);
+        }
 
         return $dataProvider;
     }
