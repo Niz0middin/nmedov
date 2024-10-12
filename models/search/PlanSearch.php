@@ -4,12 +4,12 @@ namespace app\models\search;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Report;
+use app\models\Plan;
 
 /**
- * ReportSearch represents the model behind the search form of `app\models\Report`.
+ * PlanSearch represents the model behind the search form of `app\models\Plan`.
  */
-class ReportSearch extends Report
+class PlanSearch extends Plan
 {
     /**
      * {@inheritdoc}
@@ -17,8 +17,9 @@ class ReportSearch extends Report
     public function rules()
     {
         return [
-            [['id', 'factory_id', 'status'], 'integer'],
-            [['created_at', 'updated_at', 'date'], 'safe'],
+            [['id', 'factory_id', 'status', 'sht_amount', 'kg_amount'], 'integer'],
+            [['month', 'created_at', 'updated_at'], 'safe'],
+            [['amount', 'cost_amount'], 'number'],
         ];
     }
 
@@ -40,7 +41,7 @@ class ReportSearch extends Report
      */
     public function search($params)
     {
-        $query = Report::find();
+        $query = Plan::find();
 
         // add conditions that should always apply here
 
@@ -63,17 +64,16 @@ class ReportSearch extends Report
         $query->andFilterWhere([
             'id' => $this->id,
             'factory_id' => $this->factory_id,
-            'date' => $this->date,
-            'status' => $this->status
+            'amount' => $this->amount,
+            'cost_amount' => $this->cost_amount,
+            'status' => $this->status,
+            'sht_amount' => $this->sht_amount,
+            'kg_amount' => $this->kg_amount,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ]);
 
-        if ($this->created_at) {
-            $query->andFilterWhere(['between', 'created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);
-        }
-
-        if ($this->updated_at) {
-            $query->andFilterWhere(['between', 'updated_at', $this->updated_at . ' 00:00:00', $this->updated_at . ' 23:59:59']);
-        }
+        $query->andFilterWhere(['like', 'month', $this->month]);
 
         return $dataProvider;
     }

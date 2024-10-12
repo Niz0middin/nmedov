@@ -6,6 +6,7 @@ use app\models\Factory;
 use app\models\Report;
 use app\models\ReportProduct;
 use app\models\search\FactorySearch;
+use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
 use Yii;
 use yii\web\Controller;
@@ -67,6 +68,10 @@ class FactoryController extends Controller
         $reportSearchModel->factory_id = $factory->id;
         $reportDataProvider = $reportSearchModel->search($this->request->queryParams);
 
+        $planSearchModel = new PlanSearch();
+        $planSearchModel->factory_id = $factory->id;
+        $planDataProvider = $planSearchModel->search($this->request->queryParams);
+
         // Load the reports related to this factory
         $reports = $factory->getReports()->with('reportProducts.product')->all();
 
@@ -75,6 +80,8 @@ class FactoryController extends Controller
             'reports' => $reports,
             'reportSearchModel' => $reportSearchModel,
             'reportDataProvider' => $reportDataProvider,
+            'planSearchModel' => $planSearchModel,
+            'planDataProvider' => $planDataProvider,
         ]);
     }
 
