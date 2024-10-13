@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Factory;
+use app\models\Plan;
 use app\models\Report;
 use app\models\ReportProduct;
 use app\models\search\FactorySearch;
@@ -18,9 +19,6 @@ use yii\filters\VerbFilter;
  */
 class FactoryController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
         return array_merge(
@@ -37,12 +35,6 @@ class FactoryController extends Controller
             ]
         );
     }
-
-    /**
-     * Lists all Factory models.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
         $searchModel = new FactorySearch();
@@ -55,18 +47,9 @@ class FactoryController extends Controller
         ]);
     }
 
-    /**
-     * Displays a single Factory model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionView($id)
     {
         $factory = $this->findModel($id);
-        $reportSearchModel = new ReportSearch();
-        $reportSearchModel->factory_id = $factory->id;
-        $reportDataProvider = $reportSearchModel->search($this->request->queryParams);
 
         $planSearchModel = new PlanSearch();
         $planSearchModel->factory_id = $factory->id;
@@ -78,19 +61,11 @@ class FactoryController extends Controller
         return $this->render('view', [
             'factory' => $factory,
             'reports' => $reports,
-            'reportSearchModel' => $reportSearchModel,
-            'reportDataProvider' => $reportDataProvider,
             'planSearchModel' => $planSearchModel,
             'planDataProvider' => $planDataProvider,
         ]);
     }
 
-
-    /**
-     * Creates a new Factory model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
     public function actionCreate()
     {
         $model = new Factory();
@@ -108,21 +83,12 @@ class FactoryController extends Controller
         ]);
     }
 
-    /**
-     * Updates an existing Factory model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
-
         return $this->render('update', [
             'model' => $model,
         ]);
@@ -154,13 +120,6 @@ class FactoryController extends Controller
         }
     }
 
-    /**
-     * Finds the Factory model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Factory the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id)
     {
         if (($model = Factory::findOne(['id' => $id])) !== null) {
@@ -170,9 +129,61 @@ class FactoryController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    public function actionViewPlan($id)
+    {
+        $plan = $this->findModelPlan($id);
+        $reportSearchModel = new ReportSearch();
+        $reportSearchModel->factory_id = $plan->factory_id;
+        $reportDataProvider = $reportSearchModel->search($this->request->queryParams, $plan->month);
+        return $this->render('view_plan', [
+            'plan' => $plan,
+            'reportSearchModel' => $reportSearchModel,
+            'reportDataProvider' => $reportDataProvider,
+        ]);
+    }
+
+    public function actionCreatePlan($id)
+    {
+        $factory = $this->findModel($id);
+        $plan = new Plan();
+        $plan->factory_id = $factory->id;
+        if ($this->request->isPost) {
+            if ($plan->load($this->request->post()) && $plan->save()) {
+                return $this->redirect(['view-plan', 'id' => $plan->id]);
+            }
+        } else {
+            $plan->loadDefaultValues();
+        }
+
+        return $this->render('create_plan', [
+            'plan' => $plan,
+            'factory' => $factory,
+        ]);
+    }
+
+    public function actionUpdatePlan($id)
+    {
+        $plan = $this->findModelPlan($id);
+        if ($this->request->isPost && $plan->load($this->request->post()) && $plan->save()) {
+            return $this->redirect(['view-plan', 'id' => $plan->id]);
+        }
+        return $this->render('update-plan', [
+            'plan' => $plan,
+        ]);
+    }
+
+    protected function findModelPlan($id)
+    {
+        if (($plan = Plan::findOne(['id' => $id])) !== null) {
+            return $plan;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
     public function actionViewReport($id)
     {
-        $report = $this->findReportModel($id);
+        $report = $this->findModelReport($id);
 
         // Load the reports related to this factory
         $reportProducts = $report->reportProducts;
@@ -182,11 +193,6 @@ class FactoryController extends Controller
         ]);
     }
 
-    /**
-     * Creates a new Report for a specific Factory.
-     * @param integer $id Factory ID
-     * @return mixed
-     */
     public function actionCreateReport($id)
     {
         $factory = $this->findModel($id);
@@ -235,15 +241,9 @@ class FactoryController extends Controller
         ]);
     }
 
-    /**
-     * Updates an existing Report.
-     * @param integer $id Report ID
-     * @return mixed
-     * @throws NotFoundHttpException
-     */
     public function actionUpdateReport($id)
     {
-        $report = $this->findReportModel($id);
+        $report = $this->findModelReport($id);
         $factory = $report->factory;
         $products = $factory->products;
 
@@ -294,7 +294,7 @@ class FactoryController extends Controller
 
     public function actionDeleteReport($id)
     {
-        $report = $this->findReportModel($id);
+        $report = $this->findModelReport($id);
         $factoryId = $report->factory_id;
 
         // Delete report and its related report products
@@ -312,20 +312,14 @@ class FactoryController extends Controller
 
     public function actionConfirmReport($id)
     {
-        $report = $this->findReportModel($id);
+        $report = $this->findModelReport($id);
         $report->status = 1;
         $report->save();
 
         return $this->redirect(['view-report', 'id' => $report->id]);
     }
 
-    /**
-     * Finds the Report model based on its primary key value.
-     * @param integer $id
-     * @return Report
-     * @throws NotFoundHttpException
-     */
-    protected function findReportModel($id)
+    protected function findModelReport($id)
     {
         if (($model = Report::findOne($id)) !== null) {
             return $model;

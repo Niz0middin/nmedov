@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "plan".
@@ -11,7 +12,7 @@ use Yii;
  * @property int $factory_id
  * @property string $month
  * @property float|null $amount
- * @property float|null $cost_amount
+ * @property float|null $profit
  * @property int|null $status
  * @property int $sht_amount
  * @property int $kg_amount
@@ -22,6 +23,18 @@ use Yii;
  */
 class Plan extends \yii\db\ActiveRecord
 {
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => date('Y-m-d H:i:s')
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -38,7 +51,7 @@ class Plan extends \yii\db\ActiveRecord
         return [
             [['factory_id', 'month', 'sht_amount', 'kg_amount'], 'required'],
             [['factory_id', 'status', 'sht_amount', 'kg_amount'], 'integer'],
-            [['amount', 'cost_amount'], 'number'],
+            [['amount', 'profit'], 'number'],
             [['created_at', 'updated_at'], 'safe'],
             [['month'], 'string', 'max' => 255],
             [['month', 'factory_id'], 'unique', 'targetAttribute' => ['month', 'factory_id']],
@@ -57,7 +70,7 @@ class Plan extends \yii\db\ActiveRecord
             'status' => 'Статус',
             'month' => 'Месяц',
             'amount' => 'Приход',
-            'cost_amount' => 'Расход',
+            'profit' => 'Прибыль',
             'sht_amount' => 'шт',
             'kg_amount' => 'кг',
             'created_at' => 'Создан',

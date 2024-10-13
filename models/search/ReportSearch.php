@@ -38,7 +38,7 @@ class ReportSearch extends Report
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $month = null)
     {
         $query = Report::find();
 
@@ -66,6 +66,10 @@ class ReportSearch extends Report
             'date' => $this->date,
             'status' => $this->status
         ]);
+
+        if ($month) {
+            $query->andFilterWhere(['like', 'date', $month]);
+        }
 
         if ($this->created_at) {
             $query->andFilterWhere(['between', 'created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);

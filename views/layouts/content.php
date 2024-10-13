@@ -4,6 +4,17 @@ use yii\bootstrap4\Breadcrumbs;
 use dmstr\adminlte\widgets\Alert;
 
 ?>
+<style>
+    .is-invalid {
+        border-color: #dc3545; /* Bootstrap 4 invalid input border color */
+    }
+
+    .invalid-feedback {
+        display: block; /* Error messages are displayed by default */
+        color: #dc3545;  /* Bootstrap 4 invalid feedback text color */
+    }
+
+</style>
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid">

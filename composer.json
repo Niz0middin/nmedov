@@ -20,7 +20,8 @@
         "yiisoft/yii2-symfonymailer": "~2.0.3",
         "dmstr/yii2-adminlte-asset": "3.0.0-beta1",
         "ext-json": "*",
-        "kartik-v/yii2-widgets": "dev-master"
+        "kartik-v/yii2-widgets": "dev-master",
+        "ext-calendar": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

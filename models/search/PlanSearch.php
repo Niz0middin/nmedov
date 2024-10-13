@@ -19,7 +19,7 @@ class PlanSearch extends Plan
         return [
             [['id', 'factory_id', 'status', 'sht_amount', 'kg_amount'], 'integer'],
             [['month', 'created_at', 'updated_at'], 'safe'],
-            [['amount', 'cost_amount'], 'number'],
+            [['amount', 'profit'], 'number'],
         ];
     }
 
@@ -65,7 +65,7 @@ class PlanSearch extends Plan
             'id' => $this->id,
             'factory_id' => $this->factory_id,
             'amount' => $this->amount,
-            'cost_amount' => $this->cost_amount,
+            'profit' => $this->profit,
             'status' => $this->status,
             'sht_amount' => $this->sht_amount,
             'kg_amount' => $this->kg_amount,
