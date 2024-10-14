@@ -42,6 +42,9 @@ YiiAsset::register($this);
                         'style' => 'cursor: pointer;'
                     ];
                 },
+                'tableOptions' => [
+                    'class' => 'footable table table-striped table-hover',
+                ],
                 'columns' => [
                     ['class' => 'yii\grid\SerialColumn'],
 

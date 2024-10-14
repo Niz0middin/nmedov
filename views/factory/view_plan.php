@@ -21,6 +21,9 @@ YiiAsset::register($this);
 $states = MainHelper::REPORT_STATES;
 $kg_amount = MainHelper::amountFormat($plan->kg_amount);
 $sht_amount = MainHelper::amountFormat($plan->sht_amount);
+$workdays = MainHelper::getDaysWithoutSundays($plan->month);
+$daily_kg_amount = MainHelper::amountFormat($plan->kg_amount / $workdays);
+$daily_sht_amount = MainHelper::amountFormat($plan->sht_amount / $workdays);
 ?>
 <div class="plan-view">
     <div class="card">
@@ -29,20 +32,67 @@ $sht_amount = MainHelper::amountFormat($plan->sht_amount);
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-plan', 'id' => $plan->id], ['class' => 'btn btn-primary']) ?>
                 <?= Html::a('<i class="fa fa-plus"></i> Создать ежедневный отчет', ['create-report', 'id' => $plan->factory->id], ['class' => 'btn btn-success']) ?>
             </p>
-            <h5>
-                <b>Рабочие дни: </b><?= MainHelper::getDaysWithoutSundays($plan->month) ?><br>
-                <b>Реализация: </b><?= "$kg_amount кг, $sht_amount шт" ?><br>
-                <b>Приход: </b><?= MainHelper::priceFormat($plan->amount) ?><br>
-                <b>Прибыль: </b><?= MainHelper::priceFormat($plan->profit) ?><br>
-                <b>Расход: </b><?= MainHelper::priceFormat($plan->amount - $plan->profit) ?><br>
-                <br>
-            </h5>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-bordered table-striped table-sm">
+                        <tbody>
+                        <tr>
+                            <th scope="row"><b>Рабочие дни</b></th>
+                            <td><?= $workdays ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Реализация</b></th>
+                            <td><?= "$kg_amount кг, $sht_amount шт" ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Приход</b></th>
+                            <td><?= MainHelper::priceFormat($plan->amount) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Прибыль</b></th>
+                            <td><?= MainHelper::priceFormat($plan->profit) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Произведено товара на сумму</b></th>
+                            <td><?= MainHelper::priceFormat($plan->amount - $plan->profit) ?></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <table class="table table-bordered table-striped table-sm">
+                        <tbody>
+                        <tr>
+                            <th scope="row"><b>За день</b></th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Реализация</b></th>
+                            <td><?= "$daily_kg_amount кг, $daily_sht_amount шт" ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Приход</b></th>
+                            <td><?= MainHelper::priceFormat($plan->amount / $workdays) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Прибыль</b></th>
+                            <td><?= MainHelper::priceFormat($plan->profit / $workdays) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Произведено товара на сумму</b></th>
+                            <td><?= MainHelper::priceFormat(($plan->amount - $plan->profit) / $workdays) ?></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
             <h4>Отчеты</h4>
             <?= GridView::widget([
                 'dataProvider' => $reportDataProvider,
                 'filterModel' => $reportSearchModel,
                 'rowOptions' => function ($report, $key, $index, $grid) {
-                    $class = '';
+                    $class = 'table-default';
                     if ($report->status == 0) {
                         $class = 'table-warning';
                     }
@@ -77,27 +127,8 @@ $sht_amount = MainHelper::amountFormat($plan->sht_amount);
                         ])
                     ],
                     [
-                        'attribute' => 'approximate',
-                        'label' => 'Приблизительный дневной план',
-                        'format' => 'html',
-                        'value' => function ($model) use ($plan) {
-                            $work_days = MainHelper::getDaysWithoutSundays($plan->month);
-                            $profit = MainHelper::priceFormat($plan->profit/$work_days);
-                            $income = MainHelper::priceFormat($plan->amount/$work_days);
-                            $expense = MainHelper::priceFormat(($plan->amount - $plan->profit)/$work_days);
-                            $kg = MainHelper::amountFormat($plan->kg_amount/$work_days);
-                            $sht = MainHelper::amountFormat($plan->sht_amount/$work_days);
-                            return "
-                              <b>Реализация:</b> $kg кг, $sht 	шт<br>
-                              <b>Приход:</b> $income<br>
-                              <b>Прибыль:</b> $profit<br>
-                              <b>Расход:</b> $expense<br>
-                            ";
-                        }
-                    ],
-                    [
                         'attribute' => 'overall',
-                        'label' => 'Производен',
+                        'label' => 'Общий',
                         'format' => 'html',
                         'value' => function ($model) {
                             $sht = $kg = $income = $expense = 0;
@@ -121,7 +152,7 @@ $sht_amount = MainHelper::amountFormat($plan->sht_amount);
                               <b>Реализация:</b> $kg кг, $sht 	шт<br>
                               <b>Приход:</b> $income<br>
                               <b>Прибыль:</b> $profit<br>
-                              <b>Расход:</b> $expense<br>
+                              <b>Произведено товара на сумму:</b> $expense<br>
                             ";
                         }
                     ],
