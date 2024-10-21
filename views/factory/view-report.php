@@ -27,6 +27,21 @@ YiiAsset::register($this);
                     ],
                 ]) ?>
             <?php endif ?>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Расходы</th>
+                    <th>Комментарий к расходам</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><?= MainHelper::priceFormat($report->expense) ?></td>
+                    <td><?= $report->expense_description ?></td>
+                </tr>
+                </tbody>
+            </table>
+            <br>
             <?php if (!empty($reportProducts)): ?>
                 <table class="table table-bordered table-striped">
                     <thead>

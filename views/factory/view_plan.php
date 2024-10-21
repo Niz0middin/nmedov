@@ -24,6 +24,7 @@ $sht_amount = MainHelper::amountFormat($plan->sht_amount);
 $workdays = MainHelper::getDaysWithoutSundays($plan->month);
 $daily_kg_amount = MainHelper::amountFormat($plan->kg_amount / $workdays);
 $daily_sht_amount = MainHelper::amountFormat($plan->sht_amount / $workdays);
+$percentage = $plan->getProducedPercentage();
 ?>
 <div class="plan-view">
     <div class="card">
@@ -49,12 +50,12 @@ $daily_sht_amount = MainHelper::amountFormat($plan->sht_amount / $workdays);
                             <td><?= MainHelper::priceFormat($plan->amount) ?></td>
                         </tr>
                         <tr>
-                            <th scope="row"><b>Прибыль</b></th>
-                            <td><?= MainHelper::priceFormat($plan->profit) ?></td>
-                        </tr>
-                        <tr>
                             <th scope="row"><b>Произведено товара на сумму</b></th>
                             <td><?= MainHelper::priceFormat($plan->amount - $plan->profit) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Прибыль</b></th>
+                            <td><?= MainHelper::priceFormat($plan->profit) ?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -75,16 +76,20 @@ $daily_sht_amount = MainHelper::amountFormat($plan->sht_amount / $workdays);
                             <td><?= MainHelper::priceFormat($plan->amount / $workdays) ?></td>
                         </tr>
                         <tr>
-                            <th scope="row"><b>Прибыль</b></th>
-                            <td><?= MainHelper::priceFormat($plan->profit / $workdays) ?></td>
-                        </tr>
-                        <tr>
                             <th scope="row"><b>Произведено товара на сумму</b></th>
                             <td><?= MainHelper::priceFormat(($plan->amount - $plan->profit) / $workdays) ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><b>Прибыль</b></th>
+                            <td><?= MainHelper::priceFormat($plan->profit / $workdays) ?></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <p><b>План выполнен на</b></p>
+            <div class="progress" style="height:25px">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width:<?=$percentage?>%;height:25px"><?=$percentage?>%</div>
             </div>
             <br>
             <h4>Отчеты</h4>
@@ -130,37 +135,46 @@ $daily_sht_amount = MainHelper::amountFormat($plan->sht_amount / $workdays);
                         'attribute' => 'overall',
                         'label' => 'Общий',
                         'format' => 'html',
-                        'value' => function ($model) {
-                            $sht = $kg = $income = $expense = 0;
-                            foreach ($model->reportProducts as $reportProduct) {
+                        'value' => function ($report) {
+                            $sht = $kg = $income = $cost_price = 0;
+                            foreach ($report->reportProducts as $reportProduct) {
                                 $amount = $reportProduct->amount;
                                 $product = $reportProduct->product;
                                 $income += ($product->price * $amount);
-                                $expense += ($product->cost_price * $amount);
+                                $cost_price += ($product->cost_price * $amount);
                                 if ($product->unit == 'шт') {
                                     $sht += $amount;
                                 } else {
                                     $kg += $amount;
                                 }
                             }
-                            $profit = MainHelper::priceFormat($income - $expense);
+                            $profit = MainHelper::priceFormat($income - $cost_price - $report->expense);
                             $income = MainHelper::priceFormat($income);
-                            $expense = MainHelper::priceFormat($expense);
+                            $cost_price = MainHelper::priceFormat($cost_price);
                             $kg = MainHelper::amountFormat($kg);
                             $sht = MainHelper::amountFormat($sht);
-                            return "
+                            $result = "
                               <b>Реализация:</b> $kg кг, $sht 	шт<br>
                               <b>Приход:</b> $income<br>
-                              <b>Прибыль:</b> $profit<br>
-                              <b>Произведено товара на сумму:</b> $expense<br>
+                              <b>Произведено товара на сумму:</b> $cost_price<br>
                             ";
+                            if ($report->expense > 0) {
+                                $comment = '';
+                                $expense = MainHelper::priceFormat($report->expense);
+                                if ($report->expense_description) {
+                                    $comment = " ($report->expense_description)";
+                                }
+                                $result .= "<b>Расходы:</b> $expense{$comment}<br>";
+                            }
+                            $result .= "<b>Прибыль:</b> $profit<br>";
+                            return $result;
                         }
                     ],
                     [
                         'attribute' => 'status',
                         'filter' => $states,
-                        'value' => function ($model) use ($states) {
-                            return $states[$model->status] ?? $model->status;
+                        'value' => function ($report) use ($states) {
+                            return $states[$report->status] ?? $report->status;
                         },
                         'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите'],
                     ],

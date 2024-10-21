@@ -17,7 +17,7 @@ class m241012_204836_create_plan_table extends Migration
             'factory_id' => $this->integer()->notNull(),
             'month' => $this->string()->notNull(),
             'amount' => $this->double()->defaultValue(0),
-            'cost_amount' => $this->double()->defaultValue(0),
+            'profit' => $this->double()->defaultValue(0),
             'status' => $this->tinyInteger()->defaultValue(1),
             'sht_amount' => $this->integer()->notNull(),
             'kg_amount' => $this->integer()->notNull(),

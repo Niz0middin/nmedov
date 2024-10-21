@@ -6,7 +6,7 @@ class MainHelper
 {
     const STATES = [
         1 => 'Активный',
-        0 => 'Пассивный'
+        0 => 'Неактивный'
     ];
 
     const REPORT_STATES = [

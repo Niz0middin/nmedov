@@ -18,7 +18,7 @@ class ReportSearch extends Report
     {
         return [
             [['id', 'factory_id', 'status'], 'integer'],
-            [['created_at', 'updated_at', 'date'], 'safe'],
+            [['created_at', 'updated_at', 'date', 'expense', 'expense_description'], 'safe'],
         ];
     }
 
@@ -64,8 +64,11 @@ class ReportSearch extends Report
             'id' => $this->id,
             'factory_id' => $this->factory_id,
             'date' => $this->date,
+            'expense' => $this->expense,
             'status' => $this->status
         ]);
+
+        $query->andFilterWhere(['like', 'expense_description', $this->expense_description]);
 
         if ($month) {
             $query->andFilterWhere(['like', 'date', $month]);

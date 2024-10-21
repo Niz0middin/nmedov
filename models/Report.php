@@ -11,6 +11,8 @@ use yii\behaviors\TimestampBehavior;
  * @property int $id
  * @property int $factory_id
  * @property int $date
+ * @property float|null $expense
+ * @property string|null $expense_description
  * @property int|null $status
  * @property string $created_at
  * @property string $updated_at
@@ -51,7 +53,8 @@ class Report extends \yii\db\ActiveRecord
         return [
             [['factory_id', 'date'], 'required'],
             [['factory_id', 'status'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['expense'], 'number'],
+            [['created_at', 'updated_at', 'expense_description'], 'safe'],
             [['date', 'factory_id'], 'unique', 'targetAttribute' => ['date', 'factory_id']],
             [['factory_id'], 'exist', 'skipOnError' => true, 'targetClass' => Factory::class, 'targetAttribute' => ['factory_id' => 'id']],
             [['reportProductsData'], 'safe'],
@@ -67,6 +70,8 @@ class Report extends \yii\db\ActiveRecord
             'id' => 'ID',
             'factory_id' => 'Завод',
             'date' => 'Дата',
+            'expense' => 'Расходы',
+            'expense_description' => 'Комментарий к расходам',
             'status' => 'Статус',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',

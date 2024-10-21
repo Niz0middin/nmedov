@@ -20,6 +20,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $updated_at
  *
  * @property Factory $factory
+ * @property Report[] $reports
  */
 class Plan extends \yii\db\ActiveRecord
 {
@@ -86,5 +87,39 @@ class Plan extends \yii\db\ActiveRecord
     public function getFactory()
     {
         return $this->hasOne(Factory::class, ['id' => 'factory_id']);
+    }
+
+    public function getReports()
+    {
+        return $this->hasMany(Report::class, ['factory_id' => 'factory_id'])->andOnCondition([
+            'DATE_FORMAT(report.date, "%Y-%m")' => $this->month
+        ]);
+    }
+
+    public function getProducedPercentage()
+    {
+        // Retrieve the total value of produced products (price * count)
+        $totalProduced = (new \yii\db\Query())
+            ->select(['SUM((product.price - product.cost_price) * report_product.amount) AS totalProduced'])
+            ->from('report_product')
+            ->innerJoin('product', 'product.id = report_product.product_id')
+            ->innerJoin('report', 'report.id = report_product.report_id')
+            ->where(['report.factory_id' => $this->factory_id])
+            ->andWhere(['DATE_FORMAT(report.date, "%Y-%m")' => $this->month])
+            ->scalar();
+        // Retrieve the total expenses for the same reports
+        $totalExpenses = (new \yii\db\Query())
+            ->select(['SUM(report.expense) AS totalExpenses'])
+            ->from('report')
+            ->where(['factory_id' => $this->factory_id])
+            ->andWhere(['DATE_FORMAT(report.date, "%Y-%m")' => $this->month])
+            ->scalar();
+        // Subtract expenses from total produced value
+        $netProduced = $totalProduced - $totalExpenses;
+        // Calculate the percentage of the plan amount produced
+        if ($this->amount > 0) {
+            return round(($netProduced / ($this->profit)) * 100, 2);
+        }
+        return 0;
     }
 }

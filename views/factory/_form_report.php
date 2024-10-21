@@ -29,6 +29,12 @@ use yii\bootstrap4\ActiveForm;
                     ]); ?>
                     <?= $form->field($report, 'factory_id')->hiddenInput()->label(false) ?>
                 </div>
+                <div class="col-md-2">
+                    <?= $form->field($report, 'expense')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
+                </div>
+                <div class="col-md-2">
+                    <?= $form->field($report, 'expense_description')->textInput(['max' => 255]) ?>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-8">
