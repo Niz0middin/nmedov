@@ -12,6 +12,7 @@ use app\models\search\ReportSearch;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -33,6 +34,7 @@ class FactoryController extends Controller
                         'delete' => ['POST'],
                         'delete-report' => ['POST'],
                         'confirm-report' => ['POST'],
+                        'excel-report' => ['POST'],
                     ],
                 ],
             ]
@@ -43,7 +45,6 @@ class FactoryController extends Controller
         $searchModel = new FactorySearch();
         $searchModel->status = 1;
         $dataProvider = $searchModel->search($this->request->queryParams);
-
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -53,14 +54,11 @@ class FactoryController extends Controller
     public function actionView($id)
     {
         $factory = $this->findModel($id);
-
         $planSearchModel = new PlanSearch();
         $planSearchModel->factory_id = $factory->id;
         $planDataProvider = $planSearchModel->search($this->request->queryParams);
-
         // Load the reports related to this factory
         $reports = $factory->getReports()->with('reportProducts.product')->all();
-
         return $this->render('view', [
             'factory' => $factory,
             'reports' => $reports,
@@ -72,7 +70,6 @@ class FactoryController extends Controller
     public function actionCreate()
     {
         $model = new Factory();
-
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
@@ -80,7 +77,6 @@ class FactoryController extends Controller
         } else {
             $model->loadDefaultValues();
         }
-
         return $this->render('create', [
             'model' => $model,
         ]);
@@ -100,7 +96,6 @@ class FactoryController extends Controller
 //    public function actionDelete($id)
 //    {
 //        $this->findModel($id)->delete();
-//
 //        return $this->redirect(['index']);
 //    }
 
@@ -112,7 +107,6 @@ class FactoryController extends Controller
             'Hot Lunch',
             'Finland Butter'
         ];
-
         foreach ($factories as $factory) {
             $new_factory = Factory::findOne(['name' => $factory]);
             if (!$new_factory instanceof Factory) {
@@ -125,11 +119,14 @@ class FactoryController extends Controller
 
     protected function findModel($id)
     {
+        $permission = "f$id";
         if (($model = Factory::findOne(['id' => $id])) !== null) {
+            if (!Yii::$app->user->can($permission)) {
+                throw new ForbiddenHttpException('Вам не разрешен доступ к этой странице.');
+            }
             return $model;
         }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Страница не найдена');
     }
 
     public function actionViewPlan($id)
@@ -178,17 +175,18 @@ class FactoryController extends Controller
     protected function findModelPlan($id)
     {
         if (($plan = Plan::findOne(['id' => $id])) !== null) {
+            $permission = "f$plan->factory_id";
+            if (!Yii::$app->user->can($permission)) {
+                throw new ForbiddenHttpException('Вам не разрешен доступ к этой странице.');
+            }
             return $plan;
         }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Страница не найдена');
     }
 
     public function actionViewReport($id)
     {
         $report = $this->findModelReport($id);
-
-        // Load the reports related to this factory
         $reportProducts = $report->reportProducts;
         return $this->render('view-report', [
             'report' => $report,
@@ -202,14 +200,11 @@ class FactoryController extends Controller
         $report = new Report();
         $report->factory_id = $factory->id;
         $report->date = date('Y-m-d'); // Default to today
-
         // Get products related to this factory
         $products = $factory->products;
-
         if ($report->load(Yii::$app->request->post())) {
             $reportProductsData = $report->reportProductsData;
             $valid = $report->validate();
-
             $reportProducts = [];
             foreach ($products as $product) {
                 $rp = new ReportProduct();
@@ -218,7 +213,6 @@ class FactoryController extends Controller
                 $reportProducts[] = $rp;
 //                $valid = $rp->validate() && $valid;
             }
-
             if ($valid) {
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
@@ -236,7 +230,6 @@ class FactoryController extends Controller
                 }
             }
         }
-
         return $this->render('create-report', [
             'factory' => $factory,
             'report' => $report,
@@ -249,14 +242,11 @@ class FactoryController extends Controller
         $report = $this->findModelReport($id);
         $factory = $report->factory;
         $products = $factory->products;
-
         // Load existing report products
         $reportProducts = ReportProduct::find()->where(['report_id' => $report->id])->indexBy('product_id')->all();
-
         if ($report->load(Yii::$app->request->post())) {
             $reportProductsData = $report->reportProductsData;
             $valid = $report->validate();
-
             foreach ($products as $product) {
                 if (isset($reportProducts[$product->id])) {
                     $rp = $reportProducts[$product->id];
@@ -269,7 +259,6 @@ class FactoryController extends Controller
                 $valid = $rp->validate() && $valid;
                 $reportProducts[$product->id] = $rp;
             }
-
             if ($valid) {
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
@@ -286,7 +275,6 @@ class FactoryController extends Controller
                 }
             }
         }
-
         return $this->render('update-report', [
             'factory' => $factory,
             'report' => $report,
@@ -295,30 +283,26 @@ class FactoryController extends Controller
         ]);
     }
 
-    public function actionDeleteReport($id)
-    {
-        $report = $this->findModelReport($id);
-        $factoryId = $report->factory_id;
-
-        // Delete report and its related report products
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            $report->delete();
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        return $this->redirect(['view-report', 'id' => $report->id]);
-    }
+//    public function actionDeleteReport($id)
+//    {
+//        $report = $this->findModelReport($id);
+//        // Delete report and its related report products
+//        $transaction = Yii::$app->db->beginTransaction();
+//        try {
+//            $report->delete();
+//            $transaction->commit();
+//        } catch (\Exception $e) {
+//            $transaction->rollBack();
+//            throw $e;
+//        }
+//        return $this->redirect(['view-report', 'id' => $report->id]);
+//    }
 
     public function actionConfirmReport($id)
     {
         $report = $this->findModelReport($id);
         $report->status = 1;
         $report->save();
-
         return $this->redirect(['view-report', 'id' => $report->id]);
     }
 
@@ -366,8 +350,12 @@ class FactoryController extends Controller
 
     protected function findModelReport($id)
     {
-        if (($model = Report::findOne($id)) !== null) {
-            return $model;
+        if (($report = Report::findOne($id)) !== null) {
+            $permission = "f$report->factory_id";
+            if (!Yii::$app->user->can($permission)) {
+                throw new ForbiddenHttpException('Вам не разрешен доступ к этой странице.');
+            }
+            return $report;
         }
         throw new NotFoundHttpException('Отчет не найден');
     }

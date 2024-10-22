@@ -18,8 +18,10 @@ YiiAsset::register($this);
 <div class="report-view">
     <div class="card">
         <div class="card-body">
-            <?php if ($report->status == 0) : ?>
+            <?php if ($report->status == 0 || Yii::$app->user->can('admin') || Yii::$app->user->can('superadmin')) : ?>
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-report', 'id' => $report->id], ['class' => 'btn btn-primary']) ?>
+            <?php endif ?>
+            <?php if ($report->status == 0) : ?>
                 <?= Html::a('<i class="fa fa-check"></i> Подтвердить', ['confirm-report', 'id' => $report->id], [
                     'class' => 'btn btn-info',
                     'data' => [
@@ -28,7 +30,12 @@ YiiAsset::register($this);
                     ],
                 ]) ?>
             <?php endif ?>
-            <?= \yii\helpers\Html::a('<i class="fa fa-file-excel"></i> Загрузить как Excel', ['excel-report', 'id' => $report->id], ['class' => 'btn btn-success']) ?>
+            <?= Html::a('<i class="fa fa-file-excel"></i> Загрузить как Excel', ['excel-report', 'id' => $report->id], [
+                'class' => 'btn btn-success',
+                'data' => [
+                    'method' => 'post',
+                ]
+            ]) ?>
             <table class="table table-striped table-hover">
                 <thead>
                 <tr>
