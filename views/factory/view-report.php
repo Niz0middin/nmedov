@@ -11,6 +11,7 @@ use yii\web\YiiAsset;
 $this->title = "Отчет за $report->date";
 $this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $report->factory->name, 'url' => ['view', 'id' => $report->factory->id]];
+$this->params['breadcrumbs'][] = ['label' => "План за {$report->plan->month}", 'url' => ['view-plan', 'id' => $report->plan->id]];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 ?>
@@ -20,13 +21,14 @@ YiiAsset::register($this);
             <?php if ($report->status == 0) : ?>
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-report', 'id' => $report->id], ['class' => 'btn btn-primary']) ?>
                 <?= Html::a('<i class="fa fa-check"></i> Подтвердить', ['confirm-report', 'id' => $report->id], [
-                    'class' => 'btn btn-success',
+                    'class' => 'btn btn-info',
                     'data' => [
                         'confirm' => "Вы уверены, что хотите подтвердить этот отчет?\nПосле подтверждения вы не сможете его изменить",
                         'method' => 'post',
                     ],
                 ]) ?>
             <?php endif ?>
+            <?= \yii\helpers\Html::a('<i class="fa fa-file-excel"></i> Загрузить как Excel', ['excel-report', 'id' => $report->id], ['class' => 'btn btn-success']) ?>
             <table class="table table-striped table-hover">
                 <thead>
                 <tr>

@@ -33,6 +33,11 @@ $percentage = $plan->getProducedPercentage();
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-plan', 'id' => $plan->id], ['class' => 'btn btn-primary']) ?>
                 <?= Html::a('<i class="fa fa-plus"></i> Создать ежедневный отчет', ['create-report', 'id' => $plan->factory->id], ['class' => 'btn btn-success']) ?>
             </p>
+            <b>План выполнен на</b>
+            <div class="progress" style="height:25px">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width:<?=$percentage?>%;height:25px"><?=$percentage?>%</div>
+            </div>
+            <br>
             <div class="row">
                 <div class="col">
                     <table class="table table-bordered table-striped table-sm">
@@ -87,11 +92,6 @@ $percentage = $plan->getProducedPercentage();
                     </table>
                 </div>
             </div>
-            <p><b>План выполнен на</b></p>
-            <div class="progress" style="height:25px">
-                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width:<?=$percentage?>%;height:25px"><?=$percentage?>%</div>
-            </div>
-            <br>
             <h4>Отчеты</h4>
             <?= GridView::widget([
                 'dataProvider' => $reportDataProvider,

@@ -9,10 +9,13 @@ use app\models\ReportProduct;
 use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use yii\web\Response;
 
 /**
  * FactoryController implements the CRUD actions for Factory model.
@@ -319,11 +322,53 @@ class FactoryController extends Controller
         return $this->redirect(['view-report', 'id' => $report->id]);
     }
 
+    public function actionExcelReport($id)
+    {
+        // Retrieve the specific report by its ID
+        $report = Report::findOne($id);
+        if (!$report) {
+            throw new \yii\web\NotFoundHttpException('Отчет не найден');
+        }
+        // Create a new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        // Set report data in Excel (Factory info, Date, Expense, etc.)
+        $sheet->setCellValue('A1', 'Завод: ' . $report->factory->name);
+        $sheet->setCellValue('A2', 'Дата: ' . $report->date);
+        $sheet->setCellValue('A3', 'Расходы: ' . $report->expense);
+        $sheet->setCellValue('A4', 'Комментарий к расходам: ' . $report->expense_description);
+        // Report Products Header
+        $sheet->setCellValue('A6', 'Продукт');
+        $sheet->setCellValue('B6', 'Ед. изм.');
+        $sheet->setCellValue('C6', 'Цена');
+        $sheet->setCellValue('D6', 'Количество');
+        $sheet->setCellValue('E6', 'Общий');
+        // Get report products and fill data
+        $row = 7;
+        foreach ($report->reportProducts as $reportProduct) {
+            $sheet->setCellValue('A' . $row, $reportProduct->product->name);
+            $sheet->setCellValue('B' . $row, $reportProduct->product->unit);
+            $sheet->setCellValue('C' . $row, $reportProduct->product->price);
+            $sheet->setCellValue('D' . $row, $reportProduct->amount);
+            $sheet->setCellValue('E' . $row, $reportProduct->product->price * $reportProduct->amount); // Total
+            $row++;
+        }
+        // Set filename
+        $fileName = 'report-' . $report->factory->name . '-' . $report->date . '.xlsx';
+        // Create writer object and output as download
+        $writer = new Xlsx($spreadsheet);
+        $temp_file = tempnam(sys_get_temp_dir(), 'phpspreadsheet');
+        $writer->save($temp_file);
+        return Yii::$app->response->sendFile($temp_file, $fileName)->on(Response::EVENT_AFTER_SEND, function($event) {
+            unlink($event->data);  // delete the temp file after download
+        }, $temp_file);
+    }
+
     protected function findModelReport($id)
     {
         if (($model = Report::findOne($id)) !== null) {
             return $model;
         }
-        throw new NotFoundHttpException('The requested report does not exist.');
+        throw new NotFoundHttpException('Отчет не найден');
     }
 }

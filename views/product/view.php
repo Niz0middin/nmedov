@@ -19,14 +19,16 @@ $states = MainHelper::STATES
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-                    <!--                        --><?php //= Html::a('<i class="fa fa-trash"></i> Удалить', ['delete', 'id' => $model->id], [
-                    //                            'class' => 'btn btn-danger',
-                    //                            'data' => [
-                    //                                'confirm' => 'Are you sure you want to delete this item?',
-                    //                                'method' => 'post',
-                    //                            ],
-                    //                        ]) ?>
+                    <p>
+                        <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                        <!--                        --><?php //= Html::a('<i class="fa fa-trash"></i> Удалить', ['delete', 'id' => $model->id], [
+                        //                            'class' => 'btn btn-danger',
+                        //                            'data' => [
+                        //                                'confirm' => 'Are you sure you want to delete this item?',
+                        //                                'method' => 'post',
+                        //                            ],
+                        //                        ]) ?>
+                    </p>
                     <?= DetailView::widget([
                         'model' => $model,
                         'attributes' => [

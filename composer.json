@@ -21,7 +21,8 @@
         "dmstr/yii2-adminlte-asset": "3.0.0-beta1",
         "ext-json": "*",
         "kartik-v/yii2-widgets": "dev-master",
-        "ext-calendar": "*"
+        "ext-calendar": "*",
+        "phpoffice/phpspreadsheet": "^3.3"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

@@ -2,8 +2,10 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "report".
@@ -18,10 +20,11 @@ use yii\behaviors\TimestampBehavior;
  * @property string $updated_at
  *
  * @property Factory $factory
+ * @property Plan $plan
  * @property Product[] $products
  * @property ReportProduct[] $reportProducts
  */
-class Report extends \yii\db\ActiveRecord
+class Report extends ActiveRecord
 {
     public $reportProductsData;
 
@@ -81,7 +84,7 @@ class Report extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Factory]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFactory()
     {
@@ -91,7 +94,7 @@ class Report extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Products]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getProducts()
     {
@@ -101,10 +104,17 @@ class Report extends \yii\db\ActiveRecord
     /**
      * Gets query for [[ReportProducts]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getReportProducts()
     {
         return $this->hasMany(ReportProduct::class, ['report_id' => 'id']);
+    }
+
+    public function getPlan()
+    {
+        return $this->hasOne(Plan::class, ['factory_id' => 'factory_id'])
+            ->andOnCondition(['DATE_FORMAT(:reportDate, "%Y-%m")' => new Expression('plan.month')])
+            ->addParams([':reportDate' => $this->date]);
     }
 }
