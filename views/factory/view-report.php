@@ -11,7 +11,9 @@ use yii\web\YiiAsset;
 $this->title = "Отчет за $report->date";
 $this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $report->factory->name, 'url' => ['view', 'id' => $report->factory->id]];
-$this->params['breadcrumbs'][] = ['label' => "План за {$report->plan->month}", 'url' => ['view-plan', 'id' => $report->plan->id]];
+if (isset($report->plan->month)) {
+    $this->params['breadcrumbs'][] = ['label' => "План за {$report->plan->month}", 'url' => ['view-plan', 'id' => $report->plan->id]];
+}
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 ?>

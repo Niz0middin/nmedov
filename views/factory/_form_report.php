@@ -32,7 +32,7 @@ use yii\bootstrap4\ActiveForm;
                 <div class="col-md-2">
                     <?= $form->field($report, 'expense')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <?= $form->field($report, 'expense_description')->textInput(['max' => 255]) ?>
                 </div>
             </div>
