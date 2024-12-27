@@ -9,6 +9,7 @@ use app\models\ReportProduct;
 use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
+use app\models\Task;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
 use yii\web\Controller;
@@ -358,5 +359,25 @@ class FactoryController extends Controller
             return $report;
         }
         throw new NotFoundHttpException('Отчет не найден');
+    }
+
+    protected function findModelTask($id)
+    {
+        if (($report = Task::findOne($id)) !== null) {
+            $permission = "f$report->factory_id";
+            if (!Yii::$app->user->can($permission)) {
+                throw new ForbiddenHttpException('Вам не разрешен доступ к этой странице.');
+            }
+            return $report;
+        }
+        throw new NotFoundHttpException('Отчет не найден');
+    }
+
+    public function actionViewTask($id)
+    {
+        $task = $this->findModelTask($id);
+        return $this->render('view_task', [
+            'task' => $task
+        ]);
     }
 }

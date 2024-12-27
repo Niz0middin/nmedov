@@ -31,6 +31,7 @@ YiiAsset::register($this);
                 //                            ],
                 //                        ]) ?>
                 <?= Html::a('<i class="fa fa-chart-line"></i> Поставить ежемесячный план', ['create-plan', 'id' => $factory->id], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('<i class="fa fa-tasks"></i> Добавить задачу', ['create-task', 'id' => $factory->id], ['class' => 'btn btn-success']) ?>
             </p>
             <h4>Планы</h4>
             <?= GridView::widget([
