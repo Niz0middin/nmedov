@@ -8,9 +8,13 @@ use app\models\ReportView;
 
 /**
  * ReportViewSearch represents the model behind the search form of `app\models\ReportView`.
+ *
+ * @property string $date_range
  */
 class ReportViewSearch extends ReportView
 {
+    public $date_range;
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +22,7 @@ class ReportViewSearch extends ReportView
     {
         return [
             [['id', 'factory_id', 'status'], 'integer'],
-            [['date', 'expense_description', 'created_at', 'updated_at'], 'safe'],
+            [['date', 'expense_description', 'created_at', 'updated_at', 'date_range'], 'safe'],
             [['cash_amount', 'transfer_amount', 'expense', 'income', 'cost_price', 'profit', 'sht', 'kg'], 'number'],
         ];
     }
@@ -72,10 +76,15 @@ class ReportViewSearch extends ReportView
             'profit' => $this->profit,
             'sht' => $this->sht,
             'kg' => $this->kg,
+            'date' => $this->date
         ]);
 
-        $query->andFilterWhere(['like', 'date', $this->date])
-            ->andFilterWhere(['like', 'expense_description', $this->expense_description]);
+        $query->andFilterWhere(['like', 'expense_description', $this->expense_description]);
+
+        if ($this->date_range){
+            $ranges = explode(' - ', $this->date_range);
+            $query->andFilterWhere(['between', 'date', $ranges[0], $ranges[1]]);
+        }
 
         return $dataProvider;
     }

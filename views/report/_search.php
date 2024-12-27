@@ -1,11 +1,14 @@
 <?php
 
+use kartik\daterange\DateRangePicker;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
 /** @var app\models\search\ReportViewSearch $model */
 /** @var yii\widgets\ActiveForm $form */
+
+$range_placeholder = date('Y-m-01') . ' - ' . date('Y-m-d')
 ?>
 
 <div class="report-view-search">
@@ -15,39 +18,26 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
-
-    <?= $form->field($model, 'factory_id') ?>
-
-    <?= $form->field($model, 'date') ?>
-
-    <?= $form->field($model, 'cash_amount') ?>
-
-    <?= $form->field($model, 'transfer_amount') ?>
-
-    <?php // echo $form->field($model, 'expense') ?>
-
-    <?php // echo $form->field($model, 'expense_description') ?>
-
-    <?php // echo $form->field($model, 'status') ?>
-
-    <?php // echo $form->field($model, 'created_at') ?>
-
-    <?php // echo $form->field($model, 'updated_at') ?>
-
-    <?php // echo $form->field($model, 'income') ?>
-
-    <?php // echo $form->field($model, 'cost_price') ?>
-
-    <?php // echo $form->field($model, 'profit') ?>
-
-    <?php // echo $form->field($model, 'sht') ?>
-
-    <?php // echo $form->field($model, 'kg') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
+    <div class="row">
+        <div class="col-lg-7 col-md-10 col-sm-12">
+            <div class="input-group">
+                <?= $form->field($model, 'date_range')->widget(DateRangePicker::class, [
+                    'convertFormat' => true,
+                    'pluginOptions' => [
+                        'locale' => [
+                            'format' => 'Y-m-d',
+                            'separator' => ' - ',
+                        ],
+                        'opens' => 'right',
+                        'autoUpdateInput' => false,
+                    ],
+                    'options' => ['placeholder' => $range_placeholder],
+                ])->label(false); ?>
+                <span class="input-group-btn">
+                <?= Html::submitButton('<i class="fa fa-filter"></i>  Фильтровать по периоду', ['class' => 'btn btn-primary', 'style' => 'margin-left:10px']) ?>
+                <?= Html::a('<i class="fa fa-refresh"></i> Сбросить фильтр', Yii::$app->urlManager->createUrl('/report/index'), ['class' => 'btn btn-warning', 'style' => 'display:inline-block;margin-left:10px;margin-right:10px']) ?>
+            </div>
+        </div>
     </div>
 
     <?php ActiveForm::end(); ?>

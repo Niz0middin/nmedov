@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "report_view".
@@ -61,8 +62,9 @@ class ReportView extends \yii\db\ActiveRecord
             'id' => 'ID',
             'factory_id' => 'Завод',
             'date' => 'Дата',
-            'cash_amount' => 'По наличными',
-            'transfer_amount' => 'По перечислению',
+            'date_range' => 'Период',
+            'cash_amount' => 'Наличные',
+            'transfer_amount' => 'Перечисление',
             'expense' => 'Расходы',
             'expense_description' => 'Описание расхода',
             'status' => 'Статус',
@@ -74,5 +76,42 @@ class ReportView extends \yii\db\ActiveRecord
             'sht' => 'Реал. шт',
             'kg' => 'Реал. кг',
         ];
+    }
+
+    /**
+     * Gets query for [[Factory]].
+     *
+     * @return ActiveQuery
+     */
+    public function getFactory()
+    {
+        return $this->hasOne(Factory::class, ['id' => 'factory_id']);
+    }
+
+    /**
+     * Gets query for [[Products]].
+     *
+     * @return ActiveQuery
+     */
+    public function getProducts()
+    {
+        return $this->hasMany(Product::class, ['id' => 'product_id'])->viaTable('report_product', ['report_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ReportProducts]].
+     *
+     * @return ActiveQuery
+     */
+    public function getReportProducts()
+    {
+        return $this->hasMany(ReportProduct::class, ['report_id' => 'id']);
+    }
+
+    public function getPlan()
+    {
+        return $this->hasOne(Plan::class, ['factory_id' => 'factory_id'])
+            ->andOnCondition(['DATE_FORMAT(:reportDate, "%Y-%m")' => new Expression('plan.month')])
+            ->addParams([':reportDate' => $this->date]);
     }
 }

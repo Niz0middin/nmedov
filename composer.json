@@ -22,7 +22,8 @@
         "ext-json": "*",
         "kartik-v/yii2-widgets": "dev-master",
         "ext-calendar": "*",
-        "phpoffice/phpspreadsheet": "^3.3"
+        "phpoffice/phpspreadsheet": "^3.3",
+        "kartik-v/yii2-date-range": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
