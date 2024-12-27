@@ -37,6 +37,14 @@ use yii\bootstrap4\ActiveForm;
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-4">
+                    <?= $form->field($report, 'cash_amount')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
+                </div>
+                <div class="col-md-4">
+                    <?= $form->field($report, 'transfer_amount')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-8">
                     <table class="table table-bordered">
                         <thead>

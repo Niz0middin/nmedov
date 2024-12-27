@@ -13,7 +13,9 @@ use yii\db\Expression;
  * @property int $id
  * @property int $factory_id
  * @property int $date
- * @property float|null $expense
+ * @property double $cash_amount
+ * @property double $transfer_amount
+ * @property double $expense
  * @property string|null $expense_description
  * @property int|null $status
  * @property string $created_at
@@ -56,7 +58,7 @@ class Report extends ActiveRecord
         return [
             [['factory_id', 'date'], 'required'],
             [['factory_id', 'status'], 'integer'],
-            [['expense'], 'number'],
+            [['expense', 'cash_amount', 'transfer_amount'], 'number'],
             [['created_at', 'updated_at', 'expense_description'], 'safe'],
             [['date', 'factory_id'], 'unique', 'targetAttribute' => ['date', 'factory_id']],
             [['factory_id'], 'exist', 'skipOnError' => true, 'targetClass' => Factory::class, 'targetAttribute' => ['factory_id' => 'id']],
@@ -73,6 +75,8 @@ class Report extends ActiveRecord
             'id' => 'ID',
             'factory_id' => 'Завод',
             'date' => 'Дата',
+            'cash_amount' => 'Приход наличных средств',
+            'transfer_amount' => 'Приход по перечислению',
             'expense' => 'Расходы',
             'expense_description' => 'Комментарий к расходам',
             'status' => 'Статус',

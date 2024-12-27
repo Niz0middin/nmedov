@@ -18,7 +18,7 @@ class ReportSearch extends Report
     {
         return [
             [['id', 'factory_id', 'status'], 'integer'],
-            [['created_at', 'updated_at', 'date', 'expense', 'expense_description'], 'safe'],
+            [['created_at', 'updated_at', 'date', 'cash_amount', 'transfer_amount', 'expense', 'expense_description'], 'safe'],
         ];
     }
 
@@ -65,6 +65,8 @@ class ReportSearch extends Report
             'factory_id' => $this->factory_id,
             'date' => $this->date,
             'expense' => $this->expense,
+            'cash_amount' => $this->cash_amount,
+            'transfer_amount' => $this->transfer_amount,
             'status' => $this->status
         ]);
 

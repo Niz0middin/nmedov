@@ -52,6 +52,20 @@ YiiAsset::register($this);
                 </tr>
                 </tbody>
             </table>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Приход наличных средств</th>
+                    <th>Приход по перечислению</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><?= MainHelper::priceFormat($report->cash_amount) ?></td>
+                    <td><?= MainHelper::priceFormat($report->transfer_amount) ?></td>
+                </tr>
+                </tbody>
+            </table>
             <br>
             <?php if (!empty($reportProducts)): ?>
                 <table class="table table-bordered table-striped">

@@ -153,6 +153,8 @@ $percentage = $plan->getProducedPercentage();
                             $cost_price = MainHelper::priceFormat($cost_price);
                             $kg = MainHelper::amountFormat($kg);
                             $sht = MainHelper::amountFormat($sht);
+                            $cash_amount = MainHelper::priceFormat($report->cash_amount);
+                            $transfer_amount = MainHelper::priceFormat($report->transfer_amount);
                             $result = "
                               <b>Реализация:</b> $kg кг, $sht 	шт<br>
                               <b>Приход:</b> $income<br>
@@ -166,7 +168,11 @@ $percentage = $plan->getProducedPercentage();
                                 }
                                 $result .= "<b>Расходы:</b> $expense{$comment}<br>";
                             }
-                            $result .= "<b>Прибыль:</b> $profit<br>";
+                            $result .= "
+                                <b>Прибыль:</b> $profit<br>
+                                <b>Приход наличных средств:</b> $cash_amount<br>
+                                <b>Приход по перечислению:</b> $transfer_amount<br>
+                            ";
                             return $result;
                         }
                     ],
