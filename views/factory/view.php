@@ -16,7 +16,7 @@ $this->title = $factory->name;
 $this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
-
+$states = MainHelper::TASK_STATES;
 ?>
 <div class="factory-view">
     <div class="card">
@@ -60,7 +60,7 @@ YiiAsset::register($this);
                             'removeButton' => false,
                             'pluginOptions' => [
                                 'autoclose' => true,
-                                'format' => 'yyyy-mm-dd',
+                                'format' => 'yyyy-mm',
                                 'todayHighlight' => true,
                                 'daysOfWeekDisabled' => [0]
                             ],
@@ -99,6 +99,83 @@ YiiAsset::register($this);
                         },
                     ],
                     //'status',
+                    //'created_at',
+                    //'updated_at',
+                ],
+            ]); ?>
+            <h4>Задачи</h4>
+            <?= GridView::widget([
+                'dataProvider' => $taskDataProvider,
+                'filterModel' => $taskSearchModel,
+                'rowOptions' => function ($task, $key, $index, $grid) {
+                    return [
+                        'onclick' => 'window.location.href = "' . Url::to(['view-task', 'id' => $task->id]) . '"',
+                        'style' => 'cursor: pointer;'
+                    ];
+                },
+                'tableOptions' => [
+                    'class' => 'footable table table-striped table-hover',
+                ],
+                'columns' => [
+                    ['class' => 'yii\grid\SerialColumn'],
+
+//                            'id',
+//                            'factory_id',
+                    [
+                        'attribute' => 'month',
+                        'value' => 'month',
+                        'filter' => DatePicker::widget([
+                            'model' => $taskSearchModel,
+                            'attribute' => 'month',
+                            'removeButton' => false,
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-mm',
+                                'todayHighlight' => true,
+                                'daysOfWeekDisabled' => [0]
+                            ],
+                            'options' => ['placeholder' => 'Введите месяц ...']
+                        ])
+                    ],
+                    [
+                        'attribute' => 'start_date',
+                        'value' => 'start_date',
+                        'filter' => DatePicker::widget([
+                            'model' => $taskSearchModel,
+                            'attribute' => 'start_date',
+                            'removeButton' => false,
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-mm-dd',
+                                'todayHighlight' => true,
+                                'daysOfWeekDisabled' => [0]
+                            ]
+                        ])
+                    ],
+                    [
+                        'attribute' => 'end_date',
+                        'value' => 'end_date',
+                        'filter' => DatePicker::widget([
+                            'model' => $taskSearchModel,
+                            'attribute' => 'end_date',
+                            'removeButton' => false,
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-mm-dd',
+                                'todayHighlight' => true,
+                                'daysOfWeekDisabled' => [0]
+                            ]
+                        ])
+                    ],
+                    'description:ntext',
+                    [
+                        'attribute' => 'status',
+                        'filter' => $states,
+                        'value' => function ($task) use ($states) {
+                            return $states[$task->status] ?? $task->status;
+                        },
+                        'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите'],
+                    ],
                     //'created_at',
                     //'updated_at',
                 ],

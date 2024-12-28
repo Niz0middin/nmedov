@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "task".
@@ -22,6 +23,17 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => date('Y-m-d H:i:s')
+            ],
+        ];
+    }
     /**
      * {@inheritdoc}
      */
@@ -36,7 +48,7 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['factory_id', 'month', 'start_date', 'end_date', 'description', 'created_at', 'updated_at'], 'required'],
+            [['factory_id', 'month', 'start_date', 'end_date', 'description'], 'required'],
             [['factory_id', 'status'], 'integer'],
             [['description', 'reason'], 'string'],
             [['created_at', 'updated_at'], 'safe'],

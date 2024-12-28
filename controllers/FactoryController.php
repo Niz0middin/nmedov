@@ -9,6 +9,7 @@ use app\models\ReportProduct;
 use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
+use app\models\search\TaskSearch;
 use app\models\Task;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
@@ -58,13 +59,15 @@ class FactoryController extends Controller
         $planSearchModel = new PlanSearch();
         $planSearchModel->factory_id = $factory->id;
         $planDataProvider = $planSearchModel->search($this->request->queryParams);
-        // Load the reports related to this factory
-        $reports = $factory->getReports()->with('reportProducts.product')->all();
+        $taskSearchModel = new TaskSearch();
+        $taskSearchModel->factory_id = $factory->id;
+        $taskDataProvider = $taskSearchModel->search($this->request->queryParams);
         return $this->render('view', [
             'factory' => $factory,
-            'reports' => $reports,
             'planSearchModel' => $planSearchModel,
             'planDataProvider' => $planDataProvider,
+            'taskSearchModel' => $taskSearchModel,
+            'taskDataProvider' => $taskDataProvider,
         ]);
     }
 
@@ -361,6 +364,62 @@ class FactoryController extends Controller
         throw new NotFoundHttpException('Отчет не найден');
     }
 
+    public function actionViewTask($id)
+    {
+        $task = $this->findModelTask($id);
+        return $this->render('view-task', [
+            'task' => $task
+        ]);
+    }
+
+    public function actionCreateTask($id)
+    {
+        $factory = $this->findModel($id);
+        $task = new Task();
+        $task->factory_id = $factory->id;
+        if ($this->request->isPost) {
+            if ($task->load($this->request->post()) && $task->save()) {
+                return $this->redirect(['view-task', 'id' => $task->id]);
+            }
+        } else {
+            $task->loadDefaultValues();
+        }
+
+        return $this->render('create_task', [
+            'task' => $task,
+            'factory' => $factory,
+        ]);
+    }
+
+    public function actionUpdateTask($id)
+    {
+        $task = $this->findModelTask($id);
+        if ($this->request->isPost && $task->load($this->request->post()) && $task->save()) {
+            return $this->redirect(['view-task', 'id' => $task->id]);
+        }
+        return $this->render('update-task', [
+            'task' => $task,
+        ]);
+    }
+
+    public function actionConfirmTask($id)
+    {
+        $task = $this->findModelTask($id);
+        $task->status = 1;
+        $task->save();
+        Yii::$app->session->setFlash('success', 'Задача успешно подтверждена.');
+        return $this->redirect(['view-task', 'id' => $task->id]);
+    }
+
+    public function actionRejectTask($id)
+    {
+        $task = $this->findModelTask($id);
+        $task->status = 2;
+        $task->save();
+        Yii::$app->session->setFlash('success', 'Задача успешно отклонена.');
+        return $this->redirect(['view-task', 'id' => $task->id]);
+    }
+
     protected function findModelTask($id)
     {
         if (($report = Task::findOne($id)) !== null) {
@@ -370,14 +429,6 @@ class FactoryController extends Controller
             }
             return $report;
         }
-        throw new NotFoundHttpException('Отчет не найден');
-    }
-
-    public function actionViewTask($id)
-    {
-        $task = $this->findModelTask($id);
-        return $this->render('view_task', [
-            'task' => $task
-        ]);
+        throw new NotFoundHttpException('Задача не найден');
     }
 }
