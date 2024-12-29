@@ -108,9 +108,16 @@ $states = MainHelper::TASK_STATES;
                 'dataProvider' => $taskDataProvider,
                 'filterModel' => $taskSearchModel,
                 'rowOptions' => function ($task, $key, $index, $grid) {
+                    $class = '';
+                    if ($task->status == 2) {
+                        $class = 'table-danger';
+                    } elseif ($task->status == 0) {
+                        $class = 'table-warning';
+                    }
                     return [
                         'onclick' => 'window.location.href = "' . Url::to(['view-task', 'id' => $task->id]) . '"',
-                        'style' => 'cursor: pointer;'
+                        'style' => 'cursor: pointer;',
+                        'class' => $class
                     ];
                 },
                 'tableOptions' => [
@@ -176,6 +183,7 @@ $states = MainHelper::TASK_STATES;
                         },
                         'filterInputOptions' => ['class' => 'form-control input-sm', 'prompt' => 'Выберите'],
                     ],
+                    'reason:ntext',
                     //'created_at',
                     //'updated_at',
                 ],

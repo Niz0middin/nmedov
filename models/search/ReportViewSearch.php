@@ -96,6 +96,8 @@ class ReportViewSearch extends ReportView
             $query->andFilterWhere(['between', 'date', $ranges[0], $ranges[1]]);
         }
 
+        $query->orderBy('id DESC');
+
         return $dataProvider;
     }
 }

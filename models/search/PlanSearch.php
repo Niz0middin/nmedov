@@ -75,6 +75,8 @@ class PlanSearch extends Plan
 
         $query->andFilterWhere(['like', 'month', $this->month]);
 
+        $query->orderBy('id DESC');
+
         return $dataProvider;
     }
 }

@@ -365,6 +365,21 @@ class FactoryController extends Controller
     public function actionViewTask($id)
     {
         $task = $this->findModelTask($id);
+        if (Yii::$app->request->isPost) {
+            $action = Yii::$app->request->post('action');
+            if ($action === 'reject' && $task->status == 0) {
+                $task->load(Yii::$app->request->post());
+                if ($task->validate(['reason'])) {
+                    $task->status = 2;
+                    if ($task->save(false)) {
+                        Yii::$app->session->setFlash('success', 'Задача успешно отклонена.');
+                    }
+                } else {
+                    Yii::$app->session->setFlash('error', 'Rejection reason is required to reject the task.');
+                }
+            }
+            return $this->refresh();
+        }
         return $this->render('view-task', [
             'task' => $task
         ]);
@@ -403,14 +418,6 @@ class FactoryController extends Controller
         $task->status = 1;
         $task->save();
         Yii::$app->session->setFlash('success', 'Задача успешно подтверждена.');
-        return $this->redirect(['view-task', 'id' => $task->id]);
-    }
-    public function actionRejectTask($id)
-    {
-        $task = $this->findModelTask($id);
-        $task->status = 2;
-        $task->save();
-        Yii::$app->session->setFlash('success', 'Задача успешно отклонена.');
         return $this->redirect(['view-task', 'id' => $task->id]);
     }
     protected function findModelTask($id)

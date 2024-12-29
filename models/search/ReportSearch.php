@@ -84,6 +84,8 @@ class ReportSearch extends Report
             $query->andFilterWhere(['between', 'updated_at', $this->updated_at . ' 00:00:00', $this->updated_at . ' 23:59:59']);
         }
 
+        $query->orderBy('id DESC');
+
         return $dataProvider;
     }
 }

@@ -71,6 +71,8 @@ class TaskSearch extends Task
             ->andFilterWhere(['like', 'description', $this->description])
             ->andFilterWhere(['like', 'reason', $this->reason]);
 
+        $query->orderBy('id DESC');
+
         return $dataProvider;
     }
 }

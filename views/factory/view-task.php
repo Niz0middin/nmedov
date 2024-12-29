@@ -3,6 +3,7 @@
 use app\helpers\MainHelper;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
+use yii\widgets\ActiveForm;
 use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
@@ -18,30 +19,36 @@ $states = MainHelper::TASK_STATES
 <div class="task-view">
     <div class="card">
         <div class="card-body">
-            <?php if (in_array($task->status, [0, 2]) || Yii::$app->user->can('admin')) : ?>
-                <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-task', 'id' => $task->id], ['class' => 'btn btn-primary']) ?>
-            <?php endif ?>
-            <?php if ($task->status == 0 && Yii::$app->user->can('admin')) : ?>
-                <?= Html::a('<i class="fa fa-check"></i> Подтвердить', ['confirm-task', 'id' => $task->id], [
-                    'class' => 'btn btn-info',
-                    'data' => [
-                        'confirm' => "Вы уверены, что хотите подтвердить эту задачу?",
-                        'method' => 'post',
-                    ],
-                ]) ?>
-            <?php endif ?>
-            <?php if ($task->status == 0 && Yii::$app->user->can('admin')) : ?>
-                <?= Html::a('<i class="fa fa-ban"></i> Отклонить', ['reject-task', 'id' => $task->id], [
-                    'class' => 'btn btn-danger',
-                    'data' => [
-                        'confirm' => "Вы уверены, что хотите отклонить эту задачу?",
-                        'method' => 'post',
-                    ],
-                ]) ?>
-            <?php endif ?>
             <?php
+            echo '<div style="margin-bottom:10px">';
+                if (in_array($task->status, [0, 2]) || Yii::$app->user->can('admin')) {
+                    echo Html::a('<i class="fa fa-pen"></i> Изменить',
+                        ['update-task', 'id' => $task->id],
+                        ['class' => 'btn btn-primary', 'style' => 'margin-right:10px']
+                    );
+                }
+                if ($task->status == 0 && Yii::$app->user->can('admin')) {
+                    echo Html::a('<i class="fa fa-check"></i> Подтвердить', ['confirm-task', 'id' => $task->id], [
+                        'class' => 'btn btn-info',
+                        'data' => [
+                            'confirm' => "Вы уверены, что хотите подтвердить эту задачу?",
+                            'method' => 'post',
+                        ],
+                    ]);
+                }
+            echo '</div>';
+            if ($task->status == 0 && Yii::$app->user->can('admin')) {
+                $form = ActiveForm::begin();
+                echo $form->field($task, 'reason')->textarea(['rows' => 4]);
+                echo Html::submitButton('<i class="fa fa-ban"></i> Отклонить', [
+                    'class' => 'btn btn-danger',
+                    'style' => 'margin-bottom:10px',
+                    'name' => 'action',
+                    'value' => 'reject'
+                ]);
+                ActiveForm::end();
+            }
             $attributes = [
-//                    'id',
                 [
                     'attribute' => 'factory_id',
                     'value' => function ($model) {
@@ -62,13 +69,13 @@ $states = MainHelper::TASK_STATES
                 'updated_at',
             ];
             if ($task->reason) {
-                $attributes['reason'] = $task->reason;
+                $attributes[] = 'reason';
             }
-            ?>
-            <?= DetailView::widget([
+            echo DetailView::widget([
                 'model' => $task,
                 'attributes' => $attributes,
-            ]) ?>
+            ])
+            ?>
         </div>
     </div>
 </div>
