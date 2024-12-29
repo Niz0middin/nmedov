@@ -17,7 +17,7 @@ class TaskSearch extends Task
     public function rules()
     {
         return [
-            [['id', 'status'], 'integer'],
+            [['id', 'factory_id', 'status'], 'integer'],
             [['month', 'start_date', 'end_date', 'description', 'reason', 'created_at', 'updated_at'], 'safe'],
         ];
     }
@@ -59,6 +59,7 @@ class TaskSearch extends Task
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'factory_id' => $this->factory_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
