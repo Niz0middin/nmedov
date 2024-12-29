@@ -12,7 +12,7 @@ $this->params['breadcrumbs'][] = ['label' => $factory->name, 'url' => ['view', '
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="report-create">
-    <?= $this->render('_form_report', [
+    <?= $this->render('_form-report', [
         'factory' => $factory,
         'report' => $report,
         'products' => $products

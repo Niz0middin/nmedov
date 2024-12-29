@@ -10,7 +10,7 @@ $this->params['breadcrumbs'][] = ['label' => $factory->name, 'url' => ['view', '
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="plan-create">
-    <?= $this->render('_form_plan', [
+    <?= $this->render('_form-plan', [
         'plan' => $plan,
     ]) ?>
 </div>

@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = ['label' => "Отчет за $report->date", 'u
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="report-update">
-    <?= $this->render('_form_report', [
+    <?= $this->render('_form-report', [
         'factory' => $factory,
         'report' => $report,
         'products' => $products,

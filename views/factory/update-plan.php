@@ -12,7 +12,7 @@ $this->params['breadcrumbs'][] = ['label' => "План за $plan->month", 'url'
 $this->params['breadcrumbs'][] = 'Изменить';
 ?>
 <div class="plan-update">
-    <?= $this->render('_form_plan', [
+    <?= $this->render('_form-plan', [
         'plan' => $plan,
     ]) ?>
 </div>

@@ -10,7 +10,7 @@ $this->params['breadcrumbs'][] = ['label' => "Задача за $task->month", '
 $this->params['breadcrumbs'][] = 'Изменить';
 ?>
 <div class="task-update">
-    <?= $this->render('_form_task', [
+    <?= $this->render('_form-task', [
         'task' => $task,
     ]) ?>
 </div>

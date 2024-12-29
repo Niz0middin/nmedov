@@ -43,7 +43,7 @@ class ReportViewSearch extends ReportView
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $month = null)
     {
         $query = ReportView::find();
 
@@ -69,8 +69,6 @@ class ReportViewSearch extends ReportView
             'transfer_amount' => $this->transfer_amount,
             'expense' => $this->expense,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
             'income' => $this->income,
             'cost_price' => $this->cost_price,
             'profit' => $this->profit,
@@ -80,6 +78,18 @@ class ReportViewSearch extends ReportView
         ]);
 
         $query->andFilterWhere(['like', 'expense_description', $this->expense_description]);
+
+        if ($month) {
+            $query->andFilterWhere(['like', 'date', $month]);
+        }
+
+        if ($this->created_at) {
+            $query->andFilterWhere(['between', 'created_at', $this->created_at . ' 00:00:00', $this->created_at . ' 23:59:59']);
+        }
+
+        if ($this->updated_at) {
+            $query->andFilterWhere(['between', 'updated_at', $this->updated_at . ' 00:00:00', $this->updated_at . ' 23:59:59']);
+        }
 
         if ($this->date_range){
             $ranges = explode(' - ', $this->date_range);

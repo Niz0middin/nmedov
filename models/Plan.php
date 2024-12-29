@@ -96,6 +96,13 @@ class Plan extends \yii\db\ActiveRecord
         ]);
     }
 
+    public function getReportViews()
+    {
+        return $this->hasMany(ReportView::class, ['factory_id' => 'factory_id'])->andOnCondition([
+            'DATE_FORMAT(report_view.date, "%Y-%m")' => $this->month
+        ]);
+    }
+
     public function getProducedPercentage()
     {
         // Retrieve the total value of produced products (price * count)

@@ -9,6 +9,7 @@ use app\models\ReportProduct;
 use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
+use app\models\search\ReportViewSearch;
 use app\models\search\TaskSearch;
 use app\models\Task;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -42,6 +43,9 @@ class FactoryController extends Controller
             ]
         );
     }
+
+    // Start of Factory section
+
     public function actionIndex()
     {
         $searchModel = new FactorySearch();
@@ -52,7 +56,6 @@ class FactoryController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
-
     public function actionView($id)
     {
         $factory = $this->findModel($id);
@@ -70,7 +73,6 @@ class FactoryController extends Controller
             'taskDataProvider' => $taskDataProvider,
         ]);
     }
-
     public function actionCreate()
     {
         $model = new Factory();
@@ -85,7 +87,6 @@ class FactoryController extends Controller
             'model' => $model,
         ]);
     }
-
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
@@ -96,13 +97,6 @@ class FactoryController extends Controller
             'model' => $model,
         ]);
     }
-
-//    public function actionDelete($id)
-//    {
-//        $this->findModel($id)->delete();
-//        return $this->redirect(['index']);
-//    }
-
     public function actionSeed()
     {
         $factories = [
@@ -120,7 +114,6 @@ class FactoryController extends Controller
             }
         }
     }
-
     protected function findModel($id)
     {
         $permission = "f$id";
@@ -133,19 +126,22 @@ class FactoryController extends Controller
         throw new NotFoundHttpException('Страница не найдена');
     }
 
+    // End of Factory section
+
+    // Start of Plan section
+
     public function actionViewPlan($id)
     {
         $plan = $this->findModelPlan($id);
-        $reportSearchModel = new ReportSearch();
+        $reportSearchModel = new ReportViewSearch();
         $reportSearchModel->factory_id = $plan->factory_id;
         $reportDataProvider = $reportSearchModel->search($this->request->queryParams, $plan->month);
-        return $this->render('view_plan', [
+        return $this->render('view-plan', [
             'plan' => $plan,
             'reportSearchModel' => $reportSearchModel,
             'reportDataProvider' => $reportDataProvider,
         ]);
     }
-
     public function actionCreatePlan($id)
     {
         $factory = $this->findModel($id);
@@ -159,12 +155,11 @@ class FactoryController extends Controller
             $plan->loadDefaultValues();
         }
 
-        return $this->render('create_plan', [
+        return $this->render('create-plan', [
             'plan' => $plan,
             'factory' => $factory,
         ]);
     }
-
     public function actionUpdatePlan($id)
     {
         $plan = $this->findModelPlan($id);
@@ -175,7 +170,6 @@ class FactoryController extends Controller
             'plan' => $plan,
         ]);
     }
-
     protected function findModelPlan($id)
     {
         if (($plan = Plan::findOne(['id' => $id])) !== null) {
@@ -188,6 +182,10 @@ class FactoryController extends Controller
         throw new NotFoundHttpException('Страница не найдена');
     }
 
+    // End of Plan section
+
+    // Start of Report section
+
     public function actionViewReport($id)
     {
         $report = $this->findModelReport($id);
@@ -197,7 +195,6 @@ class FactoryController extends Controller
             'reportProducts' => $reportProducts,
         ]);
     }
-
     public function actionCreateReport($id)
     {
         $factory = $this->findModel($id);
@@ -240,7 +237,6 @@ class FactoryController extends Controller
             'products' => $products
         ]);
     }
-
     public function actionUpdateReport($id)
     {
         $report = $this->findModelReport($id);
@@ -309,7 +305,6 @@ class FactoryController extends Controller
         $report->save();
         return $this->redirect(['view-report', 'id' => $report->id]);
     }
-
     public function actionExcelReport($id)
     {
         // Retrieve the specific report by its ID
@@ -351,7 +346,6 @@ class FactoryController extends Controller
             unlink($event->data);  // delete the temp file after download
         }, $temp_file);
     }
-
     protected function findModelReport($id)
     {
         if (($report = Report::findOne($id)) !== null) {
@@ -364,6 +358,10 @@ class FactoryController extends Controller
         throw new NotFoundHttpException('Отчет не найден');
     }
 
+    // End of Report section
+
+    // Start of Task section
+
     public function actionViewTask($id)
     {
         $task = $this->findModelTask($id);
@@ -371,7 +369,6 @@ class FactoryController extends Controller
             'task' => $task
         ]);
     }
-
     public function actionCreateTask($id)
     {
         $factory = $this->findModel($id);
@@ -385,12 +382,11 @@ class FactoryController extends Controller
             $task->loadDefaultValues();
         }
 
-        return $this->render('create_task', [
+        return $this->render('create-task', [
             'task' => $task,
             'factory' => $factory,
         ]);
     }
-
     public function actionUpdateTask($id)
     {
         $task = $this->findModelTask($id);
@@ -401,7 +397,6 @@ class FactoryController extends Controller
             'task' => $task,
         ]);
     }
-
     public function actionConfirmTask($id)
     {
         $task = $this->findModelTask($id);
@@ -410,7 +405,6 @@ class FactoryController extends Controller
         Yii::$app->session->setFlash('success', 'Задача успешно подтверждена.');
         return $this->redirect(['view-task', 'id' => $task->id]);
     }
-
     public function actionRejectTask($id)
     {
         $task = $this->findModelTask($id);
@@ -419,7 +413,6 @@ class FactoryController extends Controller
         Yii::$app->session->setFlash('success', 'Задача успешно отклонена.');
         return $this->redirect(['view-task', 'id' => $task->id]);
     }
-
     protected function findModelTask($id)
     {
         if (($report = Task::findOne($id)) !== null) {
@@ -431,4 +424,6 @@ class FactoryController extends Controller
         }
         throw new NotFoundHttpException('Задача не найден');
     }
+
+    // End of Task section
 }

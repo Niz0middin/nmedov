@@ -20,7 +20,7 @@ YiiAsset::register($this);
 <div class="report-view">
     <div class="card">
         <div class="card-body">
-            <?php if ($report->status == 0 || Yii::$app->user->can('admin') || Yii::$app->user->can('superadmin')) : ?>
+            <?php if ($report->status == 0 || Yii::$app->user->can('admin')) : ?>
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-report', 'id' => $report->id], ['class' => 'btn btn-primary']) ?>
             <?php endif ?>
             <?php if ($report->status == 0) : ?>

@@ -18,10 +18,10 @@ $states = MainHelper::TASK_STATES
 <div class="task-view">
     <div class="card">
         <div class="card-body">
-            <?php if (in_array($task->status, [0, 2]) || Yii::$app->user->can('admin') || Yii::$app->user->can('superadmin')) : ?>
+            <?php if (in_array($task->status, [0, 2]) || Yii::$app->user->can('admin')) : ?>
                 <?= Html::a('<i class="fa fa-pen"></i> Изменить', ['update-task', 'id' => $task->id], ['class' => 'btn btn-primary']) ?>
             <?php endif ?>
-            <?php if ($task->status == 0 && (Yii::$app->user->can('admin') || Yii::$app->user->can('superadmin'))) : ?>
+            <?php if ($task->status == 0 && Yii::$app->user->can('admin')) : ?>
                 <?= Html::a('<i class="fa fa-check"></i> Подтвердить', ['confirm-task', 'id' => $task->id], [
                     'class' => 'btn btn-info',
                     'data' => [
@@ -30,7 +30,7 @@ $states = MainHelper::TASK_STATES
                     ],
                 ]) ?>
             <?php endif ?>
-            <?php if ($task->status == 0 && (Yii::$app->user->can('admin') || Yii::$app->user->can('superadmin'))) : ?>
+            <?php if ($task->status == 0 && Yii::$app->user->can('admin')) : ?>
                 <?= Html::a('<i class="fa fa-ban"></i> Отклонить', ['reject-task', 'id' => $task->id], [
                     'class' => 'btn btn-danger',
                     'data' => [
