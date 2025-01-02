@@ -2,36 +2,23 @@
 
 namespace app\models;
 
-use Yii;
-use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "report_product".
  *
- * @property int $id
  * @property int $report_id
  * @property int $product_id
+ * @property float $price
+ * @property float $cost_price
  * @property int $amount
- * @property string $created_at
- * @property string $updated_at
  *
  * @property Product $product
  * @property Report $report
  */
-class ReportProduct extends \yii\db\ActiveRecord
+class ReportProduct extends ActiveRecord
 {
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::class,
-                'createdAtAttribute' => 'created_at',
-                'updatedAtAttribute' => 'updated_at',
-                'value' => date('Y-m-d H:i:s')
-            ],
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -48,7 +35,7 @@ class ReportProduct extends \yii\db\ActiveRecord
         return [
             [['report_id', 'product_id', 'amount'], 'required'],
             [['report_id', 'product_id', 'amount'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['price', 'cost_price'], 'number'],
             [['report_id', 'product_id'], 'unique', 'targetAttribute' => ['report_id', 'product_id']],
             [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => Product::class, 'targetAttribute' => ['product_id' => 'id']],
             [['report_id'], 'exist', 'skipOnError' => true, 'targetClass' => Report::class, 'targetAttribute' => ['report_id' => 'id']],
@@ -61,19 +48,18 @@ class ReportProduct extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'report_id' => 'Отчет',
             'product_id' => 'Продукт',
-            'amount' => 'Количество',
-            'created_at' => 'Создан',
-            'updated_at' => 'Обновлен',
+            'price' => 'Цена',
+            'cost_price' => 'Себестоимость',
+            'amount' => 'Количество'
         ];
     }
 
     /**
      * Gets query for [[Product]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getProduct()
     {
@@ -83,7 +69,7 @@ class ReportProduct extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Report]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getReport()
     {

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -13,16 +14,24 @@ use yii\helpers\ArrayHelper;
  * @property int $id
  * @property int|null $category_id
  * @property string $name
- * @property float|null $price
- * @property float|null $cost_price
  * @property string $unit
- * @property int|null $status
+ * @property float $price
+ * @property float $cost_price
+ * @property int $status
  * @property string $created_at
  * @property string $updated_at
+ * @property int $created_by
+ * @property int $updated_by
  *
  * @property Category $category
  * @property Factory[] $factories
  * @property FactoryProduct[] $factoryProducts
+ * @property ReportProduct[] $reportProducts
+ * @property Report[] $reports
+ * @property StorageProduct[] $storageProducts
+ * @property Storage[] $storages
+ * @property User $createdBy
+ * @property User $updatedBy
  */
 class Product extends ActiveRecord
 {
@@ -31,6 +40,7 @@ class Product extends ActiveRecord
     public function behaviors()
     {
         return [
+            BlameableBehavior::class,
             [
                 'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
@@ -54,7 +64,7 @@ class Product extends ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'status'], 'integer'],
+            [['category_id', 'status', 'created_by', 'updated_by'], 'integer'],
             [['name', 'unit'], 'required'],
             [['price', 'cost_price'], 'number'],
             [['unit'], 'string'],
@@ -62,6 +72,8 @@ class Product extends ActiveRecord
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']]
         ];
     }
 
@@ -83,6 +95,8 @@ class Product extends ActiveRecord
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
             'factoryIds' => 'Заводы',
+            'created_by' => 'Создал',
+            'updated_by' => 'Изменил'
         ];
     }
 
@@ -121,6 +135,56 @@ class Product extends ActiveRecord
         return $this->hasMany(ReportProduct::class, ['product_id' => 'id']);
     }
 
+    /**
+     * Gets query for [[Reports]].
+     *
+     * @return ActiveQuery
+     */
+    public function getReports()
+    {
+        return $this->hasMany(Report::class, ['id' => 'report_id'])->viaTable('report_product', ['product_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[StorageProducts]].
+     *
+     * @return ActiveQuery
+     */
+    public function getStorageProducts()
+    {
+        return $this->hasMany(StorageProduct::class, ['product_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Storages]].
+     *
+     * @return ActiveQuery
+     */
+    public function getStorages()
+    {
+        return $this->hasMany(Storage::class, ['id' => 'storage_id'])->viaTable('storage_product', ['product_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[CreatedBy]].
+     *
+     * @return ActiveQuery
+     */
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    /**
+     * Gets query for [[UpdatedBy]].
+     *
+     * @return ActiveQuery
+     */
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
     public function afterFind()
     {
         parent::afterFind();
@@ -150,7 +214,8 @@ class Product extends ActiveRecord
         return true;
     }
 
-    public static function activeItems() {
+    public static function activeItems()
+    {
         return self::find()->where(['status' => 1])->all();
     }
 }
