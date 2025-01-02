@@ -80,6 +80,8 @@ class ReportView extends ActiveRecord
             'status' => 'Статус',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
+            'created_by' => 'Создал',
+            'updated_by' => 'Изменил',
             'income' => 'Приход',
             'cost_price' => 'Пр. товара на сумму',
             'profit' => 'Прибыль',

@@ -10,7 +10,10 @@ use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
 use app\models\search\ReportSearch;
 use app\models\search\ReportViewSearch;
+use app\models\search\StorageViewSearch;
 use app\models\search\TaskSearch;
+use app\models\Storage;
+use app\models\StorageProduct;
 use app\models\Task;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
@@ -59,18 +62,27 @@ class FactoryController extends Controller
     public function actionView($id)
     {
         $factory = $this->findModel($id);
+
         $planSearchModel = new PlanSearch();
         $planSearchModel->factory_id = $factory->id;
         $planDataProvider = $planSearchModel->search($this->request->queryParams);
+
         $taskSearchModel = new TaskSearch();
         $taskSearchModel->factory_id = $factory->id;
         $taskDataProvider = $taskSearchModel->search($this->request->queryParams);
+
+        $storageSearchModel = new StorageViewSearch();
+        $storageSearchModel->factory_id = $factory->id;
+        $storageDataProvider = $storageSearchModel->search($this->request->queryParams);
+
         return $this->render('view', [
             'factory' => $factory,
             'planSearchModel' => $planSearchModel,
             'planDataProvider' => $planDataProvider,
             'taskSearchModel' => $taskSearchModel,
             'taskDataProvider' => $taskDataProvider,
+            'storageSearchModel' => $storageSearchModel,
+            'storageDataProvider' => $storageDataProvider
         ]);
     }
     public function actionCreate()
@@ -210,6 +222,8 @@ class FactoryController extends Controller
             foreach ($products as $product) {
                 $rp = new ReportProduct();
                 $rp->product_id = $product->id;
+                $rp->price = $product->price;
+                $rp->cost_price = $product->cost_price;
                 $rp->amount = $reportProductsData[$product->id]['amount'] ?? 0;
                 $reportProducts[] = $rp;
 //                $valid = $rp->validate() && $valid;
@@ -255,6 +269,8 @@ class FactoryController extends Controller
                     $rp->report_id = $report->id;
                     $rp->product_id = $product->id;
                 }
+                $rp->price = $product->price;
+                $rp->cost_price = $product->cost_price;
                 $rp->amount = $reportProductsData[$product->id]['amount'] ?? 0;
                 $valid = $rp->validate() && $valid;
                 $reportProducts[$product->id] = $rp;
@@ -433,4 +449,159 @@ class FactoryController extends Controller
     }
 
     // End of Task section
+
+    // Start of Storage section
+
+    public function actionViewStorage($id)
+    {
+        $storage = $this->findModelStorage($id);
+        $storageProducts = $storage->storageProducts;
+        return $this->render('view-storage', [
+            'storage' => $storage,
+            'storageProducts' => $storageProducts,
+        ]);
+    }
+    public function actionCreateStorage($id)
+    {
+        $factory = $this->findModel($id);
+        $storage = new Storage();
+        $storage->factory_id = $factory->id;
+        $storage->date = date('Y-m-d'); // Default to today
+        // Get products related to this factory
+        $products = $factory->products;
+        if ($storage->load(Yii::$app->request->post())) {
+            $storageProductsData = $storage->storageProductsData;
+            $valid = $storage->validate();
+            $storageProducts = [];
+            foreach ($products as $product) {
+                $rp = new StorageProduct();
+                $rp->product_id = $product->id;
+                $rp->price = $product->price;
+                $rp->cost_price = $product->cost_price;
+                $rp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
+                $storageProducts[] = $rp;
+//                $valid = $rp->validate() && $valid;
+            }
+            if ($valid) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    if ($storage->save(false)) {
+                        foreach ($storageProducts as $rp) {
+                            $rp->storage_id = $storage->id;
+                            $rp->save(false);
+                        }
+                        $transaction->commit();
+                        return $this->redirect(['view-storage', 'id' => $storage->id]);
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::error("Error creating storage: " . $e->getMessage());
+                }
+            }
+        }
+        return $this->render('create-storage', [
+            'factory' => $factory,
+            'storage' => $storage,
+            'products' => $products
+        ]);
+    }
+    public function actionUpdateStorage($id)
+    {
+        $storage = $this->findModelStorage($id);
+        $factory = $storage->factory;
+        $products = $factory->products;
+        // Load existing storage products
+        $storageProducts = StorageProduct::find()->where(['storage_id' => $storage->id])->indexBy('product_id')->all();
+        if ($storage->load(Yii::$app->request->post())) {
+            $storageProductsData = $storage->storageProductsData;
+            $valid = $storage->validate();
+            foreach ($products as $product) {
+                if (isset($storageProducts[$product->id])) {
+                    $rp = $storageProducts[$product->id];
+                } else {
+                    $rp = new StorageProduct();
+                    $rp->storage_id = $storage->id;
+                    $rp->product_id = $product->id;
+                }
+                $rp->price = $product->price;
+                $rp->cost_price = $product->cost_price;
+                $rp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
+                $valid = $rp->validate() && $valid;
+                $storageProducts[$product->id] = $rp;
+            }
+            if ($valid) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    if ($storage->save(false)) {
+                        foreach ($storageProducts as $rp) {
+                            $rp->save(false);
+                        }
+                        $transaction->commit();
+                        return $this->redirect(['view-storage', 'id' => $storage->id]);
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::error("Error updating storage: " . $e->getMessage());
+                }
+            }
+        }
+        return $this->render('update-storage', [
+            'factory' => $factory,
+            'storage' => $storage,
+            'products' => $products,
+            'storageProducts' => $storageProducts,
+        ]);
+    }
+    public function actionExcelStorage($id)
+    {
+        // Retrieve the specific storage by its ID
+        $storage = Storage::findOne($id);
+        if (!$storage) {
+            throw new \yii\web\NotFoundHttpException('Отчет не найден');
+        }
+        // Create a new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        // Set storage data in Excel (Factory info, Date, Expense, etc.)
+        $sheet->setCellValue('A1', 'Завод: ' . $storage->factory->name);
+        $sheet->setCellValue('A2', 'Дата: ' . $storage->date);
+        // Storage Products Header
+        $sheet->setCellValue('A6', 'Продукт');
+        $sheet->setCellValue('B6', 'Ед. изм.');
+        $sheet->setCellValue('C6', 'Цена');
+        $sheet->setCellValue('D6', 'Количество');
+        $sheet->setCellValue('E6', 'Общий');
+        // Get storage products and fill data
+        $row = 7;
+        foreach ($storage->storageProducts as $storageProduct) {
+            $sheet->setCellValue('A' . $row, $storageProduct->product->name);
+            $sheet->setCellValue('B' . $row, $storageProduct->product->unit);
+            $sheet->setCellValue('C' . $row, $storageProduct->price);
+            $sheet->setCellValue('D' . $row, $storageProduct->amount);
+            $sheet->setCellValue('E' . $row, $storageProduct->price * $storageProduct->amount); // Total
+            $row++;
+        }
+        // Set filename
+        $fileName = 'storage-' . $storage->factory->name . '-' . $storage->date . '.xlsx';
+        // Create writer object and output as download
+        $writer = new Xlsx($spreadsheet);
+        $temp_file = tempnam(sys_get_temp_dir(), 'phpspreadsheet');
+        $writer->save($temp_file);
+        return Yii::$app->response->sendFile($temp_file, $fileName)->on(Response::EVENT_AFTER_SEND, function($event) {
+            unlink($event->data);  // delete the temp file after download
+        }, $temp_file);
+    }
+    protected function findModelStorage($id)
+    {
+        if (($storage = Storage::findOne($id)) !== null) {
+            $permission = "f$storage->factory_id";
+            if (!Yii::$app->user->can($permission)) {
+                throw new ForbiddenHttpException('Вам не разрешен доступ к этой странице.');
+            }
+            return $storage;
+        }
+        throw new NotFoundHttpException('Отчет не найден');
+    }
+
+    // End of Storage section
 }

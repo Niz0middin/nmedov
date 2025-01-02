@@ -11,6 +11,10 @@ use yii\web\YiiAsset;
 /** @var app\models\Factory $factory */
 /** @var app\models\search\PlanSearch $planSearchModel */
 /** @var yii\data\ActiveDataProvider $planDataProvider */
+/** @var app\models\search\TaskSearch $taskSearchModel */
+/** @var yii\data\ActiveDataProvider $taskDataProvider */
+/** @var app\models\search\StorageViewSearch $storageSearchModel */
+/** @var yii\data\ActiveDataProvider $storageDataProvider */
 
 $this->title = $factory->name;
 $this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
@@ -187,6 +191,12 @@ $states = MainHelper::TASK_STATES;
                     //'created_at',
                     //'updated_at',
                 ],
+            ]); ?>
+            <h4>Остатка на складе</h4>
+            <?= $this->render('../storage/_grid-view', [
+                'searchModel' => $storageSearchModel,
+                'dataProvider' => $storageDataProvider,
+                'hasFactory' => false
             ]); ?>
         </div>
     </div>
