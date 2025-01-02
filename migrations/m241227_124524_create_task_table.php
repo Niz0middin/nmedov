@@ -20,9 +20,11 @@ class m241227_124524_create_task_table extends Migration
             'end_date' => $this->string()->notNull(),
             'description' => $this->text()->notNull(),
             'reason' => $this->text(),
-            'status' => $this->tinyInteger()->defaultValue(0),
+            'status' => $this->tinyInteger()->defaultValue(0)->notNull(),
             'created_at' => $this->timestamp()->notNull(),
-            'updated_at' => $this->timestamp()->notNull()
+            'updated_at' => $this->timestamp()->notNull(),
+            'created_by' => $this->timestamp()->notNull(),
+            'updated_by' => $this->timestamp()->notNull()
         ]);
 
         $this->addForeignKey(
@@ -30,6 +32,24 @@ class m241227_124524_create_task_table extends Migration
             'task',
             'factory_id',
             'factory',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-task-created_by',
+            'task',
+            'created_by',
+            'user',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-task-updated_by',
+            'task',
+            'updated_by',
+            'user',
             'id',
             'CASCADE'
         );

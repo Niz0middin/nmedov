@@ -3,24 +3,19 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `{{%report}}`.
+ * Handles the creation of table `{{%storage}}`.
  */
-class m241008_194309_create_report_table extends Migration
+class m250102_140753_create_storage_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('{{%report}}', [
+        $this->createTable('{{%storage}}', [
             'id' => $this->primaryKey(),
             'factory_id' => $this->integer()->notNull(),
             'date' => $this->string()->notNull(),
-            'cash_amount' => $this->double()->defaultValue(0)->notNull(),
-            'transfer_amount' => $this->double()->defaultValue(0)->notNull(),
-            'expense' => $this->double()->defaultValue(0)->notNull(),
-            'expense_description' => $this->string(),
-            'status' => $this->tinyInteger()->defaultValue(0)->notNull(),
             'created_at' => $this->timestamp()->notNull(),
             'updated_at' => $this->timestamp()->notNull(),
             'created_by' => $this->timestamp()->notNull(),
@@ -28,8 +23,8 @@ class m241008_194309_create_report_table extends Migration
         ]);
 
         $this->addForeignKey(
-            'fk-report-factory_id',
-            'report',
+            'fk-storage-factory_id',
+            'storage',
             'factory_id',
             'factory',
             'id',
@@ -37,8 +32,8 @@ class m241008_194309_create_report_table extends Migration
         );
 
         $this->addForeignKey(
-            'fk-report-created_by',
-            'report',
+            'fk-storage-created_by',
+            'storage',
             'created_by',
             'user',
             'id',
@@ -46,8 +41,8 @@ class m241008_194309_create_report_table extends Migration
         );
 
         $this->addForeignKey(
-            'fk-report-updated_by',
-            'report',
+            'fk-storage-updated_by',
+            'storage',
             'updated_by',
             'user',
             'id',
@@ -55,8 +50,8 @@ class m241008_194309_create_report_table extends Migration
         );
 
         $this->createIndex(
-            'unique-report-date-factory_id',
-            'report',
+            'unique-storage-date-factory_id',
+            'storage',
             ['date', 'factory_id'],
             true
         );
@@ -67,6 +62,6 @@ class m241008_194309_create_report_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('{{%report}}');
+        $this->dropTable('{{%storage}}');
     }
 }

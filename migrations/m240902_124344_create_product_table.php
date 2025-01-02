@@ -18,10 +18,12 @@ class m240902_124344_create_product_table extends Migration
             'name' => $this->string()->notNull()->unique(),
             'unit' => "ENUM('кг', 'шт') NOT NULL",
             'price' => $this->double()->defaultValue(0),
-            'cost_price' => $this->double()->defaultValue(0),
-            'status' => $this->tinyInteger()->defaultValue(1),
+            'cost_price' => $this->double()->defaultValue(0)->notNull(),
+            'status' => $this->tinyInteger()->defaultValue(1)->notNull(),
             'created_at' => $this->timestamp()->notNull(),
-            'updated_at' => $this->timestamp()->notNull()
+            'updated_at' => $this->timestamp()->notNull(),
+            'created_by' => $this->timestamp()->notNull(),
+            'updated_by' => $this->timestamp()->notNull()
         ]);
 
         $this->addForeignKey(
@@ -29,6 +31,24 @@ class m240902_124344_create_product_table extends Migration
             'product',
             'category_id',
             'category',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-product-created_by',
+            'product',
+            'created_by',
+            'user',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-product-updated_by',
+            'product',
+            'updated_by',
+            'user',
             'id',
             'CASCADE'
         );

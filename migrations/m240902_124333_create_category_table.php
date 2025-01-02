@@ -16,16 +16,36 @@ class m240902_124333_create_category_table extends Migration
             'id' => $this->primaryKey(),
             'parent_id' => $this->integer(),
             'name' => $this->string()->notNull(),
-            'status' => $this->tinyInteger()->defaultValue(1),
+            'status' => $this->tinyInteger()->defaultValue(1)->notNull(),
             'created_at' => $this->timestamp()->notNull(),
-            'updated_at' => $this->timestamp()->notNull()
+            'updated_at' => $this->timestamp()->notNull(),
+            'created_by' => $this->timestamp()->notNull(),
+            'updated_by' => $this->timestamp()->notNull()
         ]);
 
         $this->addForeignKey(
-            'fk-categoriy-parent_id',
+            'fk-category-parent_id',
             'category',
             'parent_id',
             'category',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-category-created_by',
+            'category',
+            'created_by',
+            'user',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-category-updated_by',
+            'category',
+            'updated_by',
+            'user',
             'id',
             'CASCADE'
         );

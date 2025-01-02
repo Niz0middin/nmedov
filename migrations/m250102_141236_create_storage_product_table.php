@@ -3,17 +3,17 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `{{%report_product}}`.
+ * Handles the creation of table `{{%storage_product}}`.
  */
-class m241008_195049_create_report_product_table extends Migration
+class m250102_141236_create_storage_product_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('{{%report_product}}', [
-            'report_id' => $this->integer()->notNull(),
+        $this->createTable('{{%storage_product}}', [
+            'storage_id' => $this->integer()->notNull(),
             'product_id' => $this->integer()->notNull(),
             'price' => $this->double()->notNull(),
             'cost_price' => $this->double()->notNull(),
@@ -21,8 +21,8 @@ class m241008_195049_create_report_product_table extends Migration
         ]);
 
         $this->addForeignKey(
-            'fk-report_product-product_id',
-            'report_product',
+            'fk-storage_product-product_id',
+            'storage_product',
             'product_id',
             'product',
             'id',
@@ -30,18 +30,18 @@ class m241008_195049_create_report_product_table extends Migration
         );
 
         $this->addForeignKey(
-            'fk-report_product-report_id',
-            'report_product',
-            'report_id',
-            'report',
+            'fk-storage_product-storage_id',
+            'storage_product',
+            'storage_id',
+            'storage',
             'id',
             'CASCADE'
         );
 
         $this->createIndex(
-            'unique-report_product-ids',
-            'report_product',
-            ['report_id', 'product_id'],
+            'unique-storage_product-ids',
+            'storage_product',
+            ['storage_id', 'product_id'],
             true
         );
     }
@@ -51,6 +51,6 @@ class m241008_195049_create_report_product_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('{{%report_product}}');
+        $this->dropTable('{{%storage_product}}');
     }
 }
