@@ -5,7 +5,7 @@
 /* @var $storage app\models\Storage */
 /* @var $products app\models\Product[] */
 
-$this->title = "Создать отчет";
+$this->title = "Добавить остатку склада";
 $this->params['breadcrumbs'][] = ['label' => 'Заводы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $factory->name, 'url' => ['view', 'id' => $factory->id]];
 //$this->params['breadcrumbs'][] = ['label' => "План за {$storage->plan->month}", 'url' => ['view-plan', 'id' => $storage->plan->id]];

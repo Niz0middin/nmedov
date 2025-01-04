@@ -8,7 +8,6 @@ use app\models\Report;
 use app\models\ReportProduct;
 use app\models\search\FactorySearch;
 use app\models\search\PlanSearch;
-use app\models\search\ReportSearch;
 use app\models\search\ReportViewSearch;
 use app\models\search\StorageViewSearch;
 use app\models\search\TaskSearch;
@@ -474,21 +473,22 @@ class FactoryController extends Controller
             $valid = $storage->validate();
             $storageProducts = [];
             foreach ($products as $product) {
-                $rp = new StorageProduct();
-                $rp->product_id = $product->id;
-                $rp->price = $product->price;
-                $rp->cost_price = $product->cost_price;
-                $rp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
-                $storageProducts[] = $rp;
-//                $valid = $rp->validate() && $valid;
+                $sp = new StorageProduct();
+                $sp->product_id = $product->id;
+                $sp->price = $product->price;
+                $sp->cost_price = $product->cost_price;
+                $sp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
+                $sp->remaining_amount = $storageProductsData[$product->id]['remaining_amount'] ?? 0;
+                $storageProducts[] = $sp;
+//                $valid = $sp->validate() && $valid;
             }
             if ($valid) {
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
                     if ($storage->save(false)) {
-                        foreach ($storageProducts as $rp) {
-                            $rp->storage_id = $storage->id;
-                            $rp->save(false);
+                        foreach ($storageProducts as $sp) {
+                            $sp->storage_id = $storage->id;
+                            $sp->save(false);
                         }
                         $transaction->commit();
                         return $this->redirect(['view-storage', 'id' => $storage->id]);
@@ -517,24 +517,25 @@ class FactoryController extends Controller
             $valid = $storage->validate();
             foreach ($products as $product) {
                 if (isset($storageProducts[$product->id])) {
-                    $rp = $storageProducts[$product->id];
+                    $sp = $storageProducts[$product->id];
                 } else {
-                    $rp = new StorageProduct();
-                    $rp->storage_id = $storage->id;
-                    $rp->product_id = $product->id;
+                    $sp = new StorageProduct();
+                    $sp->storage_id = $storage->id;
+                    $sp->product_id = $product->id;
                 }
-                $rp->price = $product->price;
-                $rp->cost_price = $product->cost_price;
-                $rp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
-                $valid = $rp->validate() && $valid;
-                $storageProducts[$product->id] = $rp;
+                $sp->price = $product->price;
+                $sp->cost_price = $product->cost_price;
+                $sp->amount = $storageProductsData[$product->id]['amount'] ?? 0;
+                $sp->remaining_amount = $storageProductsData[$product->id]['remaining_amount'] ?? 0;
+                $valid = $sp->validate() && $valid;
+                $storageProducts[$product->id] = $sp;
             }
             if ($valid) {
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
                     if ($storage->save(false)) {
-                        foreach ($storageProducts as $rp) {
-                            $rp->save(false);
+                        foreach ($storageProducts as $sp) {
+                            $sp->save(false);
                         }
                         $transaction->commit();
                         return $this->redirect(['view-storage', 'id' => $storage->id]);

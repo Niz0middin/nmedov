@@ -23,7 +23,7 @@ class StorageViewSearch extends StorageView
         return [
             [['id', 'factory_id', 'created_by', 'updated_by'], 'integer'],
             [['date', 'created_at', 'updated_at', 'date_range'], 'safe'],
-            [['income', 'cost_price', 'profit', 'sht', 'kg'], 'number'],
+            [['amount', 'sht', 'kg', 'remaining_amount', 'remaining_sht', 'remaining_kg'], 'number'],
         ];
     }
 
@@ -69,11 +69,12 @@ class StorageViewSearch extends StorageView
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
-            'income' => $this->income,
-            'cost_price' => $this->cost_price,
-            'profit' => $this->profit,
+            'amount' => $this->amount,
             'sht' => $this->sht,
             'kg' => $this->kg,
+            'remaining_amount' => $this->remaining_amount,
+            'remaining_sht' => $this->remaining_sht,
+            'remaining_kg' => $this->remaining_kg,
             'date' => $this->date
         ]);
 

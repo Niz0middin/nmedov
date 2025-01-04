@@ -31,20 +31,13 @@ use yii\bootstrap4\ActiveForm;
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4">
-                    <?= $form->field($storage, 'cash_amount')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
-                </div>
-                <div class="col-md-4">
-                    <?= $form->field($storage, 'transfer_amount')->textInput(['type' => 'number', 'step' => 0.01, 'min' => 0]) ?>
-                </div>
-            </div>
-            <div class="row">
                 <div class="col-md-8">
                     <table class="table table-bordered">
                         <thead>
                         <tr>
                             <th>Продукт</th>
-                            <th>Количество</th>
+                            <th>Количество произведенного продукта за текущий день</th>
+                            <th>Общий остаток продукта на складе</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -55,6 +48,19 @@ use yii\bootstrap4\ActiveForm;
                                     <div class="input-group">
                                         <?= Html::activeInput('number', $storage, "storageProductsData[$product->id][amount]", [
                                             'value' => $storageProducts[$product->id]['amount'] ?? 0,
+                                            'class' => 'form-control',
+                                            'step' => 1,
+                                            'min' => 0,
+                                        ]) ?>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><?= $product->unit ?></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <?= Html::activeInput('number', $storage, "storageProductsData[$product->id][remaining_amount]", [
+                                            'value' => $storageProducts[$product->id]['remaining_amount'] ?? 0,
                                             'class' => 'form-control',
                                             'step' => 1,
                                             'min' => 0,

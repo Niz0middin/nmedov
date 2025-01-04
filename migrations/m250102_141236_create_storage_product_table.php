@@ -17,7 +17,8 @@ class m250102_141236_create_storage_product_table extends Migration
             'product_id' => $this->integer()->notNull(),
             'price' => $this->double()->notNull(),
             'cost_price' => $this->double()->notNull(),
-            'amount' => $this->integer()->notNull()
+            'amount' => $this->integer()->notNull(),
+            'remaining_amount' => $this->integer()->notNull()
         ]);
 
         $this->addForeignKey(

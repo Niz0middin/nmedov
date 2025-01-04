@@ -12,6 +12,7 @@ use Yii;
  * @property float $price
  * @property float $cost_price
  * @property int $amount
+ * @property int $remaining_amount
  *
  * @property Product $product
  * @property Storage $storage
@@ -32,8 +33,8 @@ class StorageProduct extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['storage_id', 'product_id', 'price', 'cost_price', 'amount'], 'required'],
-            [['storage_id', 'product_id', 'amount'], 'integer'],
+            [['storage_id', 'product_id', 'price', 'cost_price', 'amount', 'remaining_amount'], 'required'],
+            [['storage_id', 'product_id', 'amount', 'remaining_amount'], 'integer'],
             [['price', 'cost_price'], 'number'],
             [['storage_id', 'product_id'], 'unique', 'targetAttribute' => ['storage_id', 'product_id']],
             [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => Product::class, 'targetAttribute' => ['product_id' => 'id']],
@@ -52,6 +53,7 @@ class StorageProduct extends \yii\db\ActiveRecord
             'price' => 'Price',
             'cost_price' => 'Cost Price',
             'amount' => 'Amount',
+            'remaining_amount' => 'Remaining Amount',
         ];
     }
 

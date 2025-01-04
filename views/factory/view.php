@@ -36,6 +36,7 @@ $states = MainHelper::TASK_STATES;
                 //                        ]) ?>
                 <?= Html::a('<i class="fa fa-chart-line"></i> Поставить ежемесячный план', ['create-plan', 'id' => $factory->id], ['class' => 'btn btn-primary']) ?>
                 <?= Html::a('<i class="fa fa-tasks"></i> Добавить задачу', ['create-task', 'id' => $factory->id], ['class' => 'btn btn-success']) ?>
+                <?= Html::a('<i class="fa fa-warehouse"></i> Добавить остатку склада', ['create-storage', 'id' => $factory->id], ['class' => 'btn btn-info']) ?>
             </p>
             <h4>Планы</h4>
             <?= GridView::widget([
@@ -192,7 +193,7 @@ $states = MainHelper::TASK_STATES;
                     //'updated_at',
                 ],
             ]); ?>
-            <h4>Остатка на складе</h4>
+            <h4>Остатки на складе</h4>
             <?= $this->render('../storage/_grid-view', [
                 'searchModel' => $storageSearchModel,
                 'dataProvider' => $storageDataProvider,

@@ -4,7 +4,7 @@
 /** @var app\models\search\StorageViewSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Отчеты';
+$this->title = 'Остатки на складе';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="storage-view-index">

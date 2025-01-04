@@ -18,15 +18,10 @@ echo GridView::widget([
     'filterModel' => $searchModel,
     'showFooter' => true,
     'rowOptions' => function ($model) {
-        $class = '';
-        if ($model->status == 0) {
-            $class = 'table-warning';
-        }
         return [
             'id' => $model->id,
             'onclick' => 'window.location.href = "' . Url::to(['/factory/view-storage', 'id' => $model->id]) . '"',
-            'style' => 'cursor: pointer;',
-            'class' => $class
+            'style' => 'cursor: pointer;'
         ];
     },
     'tableOptions' => [
@@ -62,25 +57,11 @@ echo GridView::widget([
             'footer' => 'Общий:'
         ],
         [
-            'attribute' => 'income',
+            'attribute' => 'amount',
             'value' => function ($storage) {
-                return MainHelper::priceFormat($storage->income);
+                return MainHelper::priceFormat($storage->amount);
             },
-            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'income')))
-        ],
-        [
-            'attribute' => 'cost_price',
-            'value' => function ($storage) {
-                return MainHelper::priceFormat($storage->cost_price);
-            },
-            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'cost_price')))
-        ],
-        [
-            'attribute' => 'profit',
-            'value' => function ($storage) {
-                return MainHelper::priceFormat($storage->profit);
-            },
-            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'profit')))
+            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'amount')))
         ],
         [
             'attribute' => 'sht',
@@ -95,6 +76,27 @@ echo GridView::widget([
                 return MainHelper::priceFormat($storage->kg);
             },
             'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'kg')))
+        ],
+        [
+            'attribute' => 'remaining_amount',
+            'value' => function ($storage) {
+                return MainHelper::priceFormat($storage->remaining_amount);
+            },
+            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'remaining_amount')))
+        ],
+        [
+            'attribute' => 'remaining_sht',
+            'value' => function ($storage) {
+                return MainHelper::priceFormat($storage->remaining_sht);
+            },
+            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'remaining_sht')))
+        ],
+        [
+            'attribute' => 'remaining_kg',
+            'value' => function ($storage) {
+                return MainHelper::priceFormat($storage->remaining_kg);
+            },
+            'footer' => MainHelper::priceFormat(array_sum(array_column($models, 'remaining_kg')))
         ]
     ],
 ]);

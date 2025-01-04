@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 /** @var app\models\StorageView $model */
 
 $this->title = $model->date;
-$this->params['breadcrumbs'][] = ['label' => 'Отчеты', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Остатки на складе', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 YiiAsset::register($this);
 ?>
