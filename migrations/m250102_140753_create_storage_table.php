@@ -18,8 +18,8 @@ class m250102_140753_create_storage_table extends Migration
             'date' => $this->string()->notNull(),
             'created_at' => $this->timestamp()->notNull(),
             'updated_at' => $this->timestamp()->notNull(),
-            'created_by' => $this->timestamp()->notNull(),
-            'updated_by' => $this->timestamp()->notNull()
+            'created_by' => $this->integer()->notNull(),
+            'updated_by' => $this->integer()->notNull()
         ]);
 
         $this->addForeignKey(
